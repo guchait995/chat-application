@@ -8,8 +8,8 @@ admin.initializeApp();
 const express = require("express");
 const app = express();
 const db = admin.firestore();
-
-exports.helloWorld = functions.https.onRequest((request, response) => {
+const apiKey = "AIzaSyCczyYTfWTySspf_s6Dne_ncxW5mr70s_w";
+exports.loginWithIdPassWord = functions.https.onRequest((request, response) => {
   response.send("Hello from Firebase!");
 });
 const handleSuccess = (message, res) => {
