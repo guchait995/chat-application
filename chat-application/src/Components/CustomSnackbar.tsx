@@ -30,7 +30,7 @@ export default function CustomSnackbar() {
     <Snackbar
       anchorOrigin={{
         vertical: "bottom",
-        horizontal: "center"
+        horizontal: "left"
       }}
       open={snack.open}
       autoHideDuration={snack.timeout}

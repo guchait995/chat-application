@@ -7,7 +7,7 @@ export default function Header() {
     <div className="header">
       <h2>
         {/* <img src={icon} className="app-icon-small" /> */}
-        Chat Application
+        Chat App
       </h2>
       <div className="navlinks">
         <div

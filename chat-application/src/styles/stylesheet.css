@@ -108,19 +108,19 @@ body {
   padding: 5px;
 }
 .chat-buble {
-  width: 60%;
+  width: calc(20% + 200px);
   background-color: rgb(236, 236, 255);
   border-radius: 10px;
   box-shadow: 2px 2px 2px 2px #aaabac79;
 }
 .chat-buble-own {
-  width: 60%;
+  width: calc(20% + 200px);
   box-shadow: 2px 2px 2px 2px #aaabac79;
 
   background-color: rgb(236, 236, 255);
   border-radius: 10px;
-  margin-left: 40%;
-  transform: (-40%);
+  margin-left: calc(100% - (20% + 200px));
+  transform: (calc(100% - (20%)));
 }
 
 .chat-message {
@@ -136,6 +136,11 @@ body {
   padding-left: 10px;
   color: rgb(50, 134, 85);
   font-weight: 800;
+}
+.timeStamp {
+  text-align: right;
+  font-size: 12px;
+  padding: 5px;
 }
 ::-webkit-scrollbar {
   width: 5px;
