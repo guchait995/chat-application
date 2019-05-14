@@ -10,13 +10,16 @@ export default function ChatInputLayout() {
   const handleSend = () => {
     console.log(text);
     axios
-      .post("http://localhost:8000/chatPost", {
-        chat: {
-          message: text,
-          timeStamp: Date.now(),
-          name: "sourav"
+      .post(
+        "https://us-central1-chat-application-4596f.cloudfunctions.net/app/chatPost",
+        {
+          chat: {
+            message: text,
+            timeStamp: Date.now(),
+            name: "sourav"
+          }
         }
-      })
+      )
       .then(res => {
         setText("");
         openSnackbar({ message: res.data.message, timeout: 3000 });

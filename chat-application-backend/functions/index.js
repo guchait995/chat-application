@@ -1,24 +1,27 @@
+const functions = require("firebase-functions");
+
+const admin = require("firebase-admin");
+const bodyParser = require("body-parser");
+// const axios = require("axios");
+const cors = require("cors")({ origin: true });
+admin.initializeApp();
 const express = require("express");
 const app = express();
-var bodyParser = require("body-parser");
+const db = admin.firestore();
 
-const cors = require("cors")({ origin: true });
-app.use(cors);
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
-const admin = require("firebase-admin");
-var serviceAccount = require("../backend/chat-application-4596f-4bcdb1f73bb0.json");
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+exports.helloWorld = functions.https.onRequest((request, response) => {
+  response.send("Hello from Firebase!");
 });
-var db = admin.firestore();
-var handleSuccess = (message, res) => {
+const handleSuccess = (message, res) => {
   res.send({ message: message }).status(200);
 };
-var handleError = (message, res) => {
+const handleError = (message, res) => {
   res.send({ message: message }).status(400);
 };
 
+app.use(cors);
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
@@ -56,6 +59,5 @@ app.post("/chatPost", async (req, res) => {
     }
   }
 });
-app.listen(8000, () => {
-  console.log("Example app listening on port 8000!");
-});
+
+exports.app = functions.https.onRequest(app);

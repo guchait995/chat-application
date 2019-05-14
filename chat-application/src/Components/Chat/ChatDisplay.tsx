@@ -22,7 +22,9 @@ export default function ChatDisplay() {
   var isMounted = true;
   const getMessages = () => {
     axios
-      .get("http://localhost:8000/chats")
+      .get(
+        "https://us-central1-chat-application-4596f.cloudfunctions.net/app/chats"
+      )
       .then(res => {
         setMessages(res.data);
       })
@@ -35,7 +37,7 @@ export default function ChatDisplay() {
       isMounted = false;
       setInterval(() => {
         getMessages();
-      }, 1000);
+      }, 10000);
     }
   }, []);
   return (
