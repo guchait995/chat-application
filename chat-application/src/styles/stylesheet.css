@@ -6,6 +6,27 @@ body {
   background-color: rgb(0, 45, 82);
   color: white;
   padding: 10px;
+
+  vertical-align: middle;
+}
+
+@font-face {
+  font-family: "Avenir LT Std 55 Roman";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Avenir LT Std 55 Roman"),
+    url("../styles/AvenirLTStd-Roman.woff") format("woff");
+}
+
+* {
+  font-family: "Avenir LT Std 55 Roman";
+}
+.app-icon-small {
+  width: 40px;
+}
+
+.app-icon {
+  width: 70px;
 }
 .navlinks {
   position: absolute;
@@ -17,13 +38,13 @@ body {
   font-size: 20px;
 }
 .login-dialog {
-  width: 400px;
-  height: 300px;
-  background-color: rgb(231, 231, 231);
+  width: 50%;
+  min-width: 300px;
   margin-left: auto;
   margin-right: auto;
   padding: 30px;
   text-align: center;
+  border: none;
 }
 .login-dialog > form > button {
   margin-top: 20px;
