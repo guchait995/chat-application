@@ -46,7 +46,6 @@ export default function Login() {
               onChange={value => {
                 setPassword(value.currentTarget.value);
               }}
-              margin="normal"
               variant="outlined"
             />
             <Button

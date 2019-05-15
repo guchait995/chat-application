@@ -1,20 +1,41 @@
 import React, { useState } from "react";
 import Header from "../Layout/Header";
-import { TextField, Button } from "@material-ui/core";
+import {
+  TextField,
+  Button,
+  InputAdornment,
+  IconButton,
+  FormControl
+} from "@material-ui/core";
 import icon from "../Components/emoticons/chat-app-icon.png";
 import { openSnackbar } from "../Components/CustomSnackbar";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 export default function Signup(props) {
   const [userName, setUserName] = useState<string | null>(null);
   const [isUserNameConfirmed, setIsUserNameConfimed] = useState<boolean>(false);
+  const [userExist, setUserExist] = useState<boolean | null>(null);
   const [email, setEmail] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(
+    false
+  );
+  const [password, setPassword] = useState<string | null>(null);
+  const [confirmPassword, setConfirmPassword] = useState<string | null>(null);
   const checkUserExist = () => {
-    if (userName === "sourav") {
-      openSnackbar({ message: "Username Exists", timeout: 3000 });
-    } else {
-      setIsUserNameConfimed(true);
-      openSnackbar({ message: "Username Available", timeout: 3000 });
+    var elem = document.getElementsByName("username");
+    if (elem) {
+      if (userName === "sourav") {
+        setUserExist(true);
+        openSnackbar({ message: "User name Exists", timeout: 3000 });
+      } else {
+        setUserExist(false);
+        setIsUserNameConfimed(true);
+        openSnackbar({ message: "Username Available", timeout: 3000 });
+      }
     }
   };
+
   return (
     <React.Fragment>
       <Header />
@@ -25,34 +46,40 @@ export default function Signup(props) {
         ) : (
           <h1>Chat App Welcomes You!!! {userName}</h1>
         )}
-        <form>
-          {isUserNameConfirmed === false ? (
-            <div>
-              <TextField
-                label="Username"
-                fullWidth
-                onChange={e => {
-                  setUserName(e.currentTarget.value);
-                }}
-                margin="normal"
-                variant="outlined"
-              />
-              <Button
-                variant="contained"
-                fullWidth
-                color="primary"
-                onClick={() => {
-                  checkUserExist();
-                }}
-              >
-                Check Username
-              </Button>
-            </div>
-          ) : (
-            <div>
+        {isUserNameConfirmed === false ? (
+          <form
+            onSubmit={() => {
+              checkUserExist();
+            }}
+          >
+            <TextField
+              label="Username"
+              fullWidth
+              error={userExist === null ? false : userExist}
+              name="username"
+              onChange={e => {
+                setUserName(e.currentTarget.value);
+              }}
+              margin="normal"
+              variant="outlined"
+            />
+            <Button
+              variant="contained"
+              fullWidth
+              type="submit"
+              color="primary"
+              onClick={() => {
+                checkUserExist();
+              }}
+            >
+              Check Username
+            </Button>
+          </form>
+        ) : (
+          <form onSubmit={() => {}}>
+            <FormControl fullWidth>
               <TextField
                 label="Email"
-                fullWidth
                 type="email"
                 value={email === null ? "" : email}
                 onChange={e => {
@@ -63,37 +90,97 @@ export default function Signup(props) {
               />
               <TextField
                 label="Password"
-                fullWidth
-                type="password"
+                value={password === null ? "" : password}
+                type={showPassword ? "text" : "password"}
                 onChange={value => {
-                  // setPassword(value.currentTarget.value);
+                  setPassword(value.currentTarget.value);
                 }}
+                error={
+                  password != null && confirmPassword != null
+                    ? password != confirmPassword
+                    : false
+                }
+                helperText={
+                  password != null && confirmPassword != null
+                    ? password != confirmPassword
+                      ? "Passwords do not match"
+                      : ""
+                    : false
+                }
                 margin="normal"
                 variant="outlined"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="Toggle password visibility"
+                        onClick={() => {
+                          setShowPassword(!showPassword);
+                        }}
+                      >
+                        {!showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
               />
+
               <TextField
                 label="Confirm Password"
-                fullWidth
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 onChange={value => {
-                  // setPassword(value.currentTarget.value);
+                  setConfirmPassword(value.currentTarget.value);
                 }}
+                error={
+                  password != null && confirmPassword != null
+                    ? password != confirmPassword
+                    : false
+                }
+                helperText={
+                  password != null && confirmPassword != null
+                    ? password != confirmPassword
+                      ? "Passwords do not match"
+                      : ""
+                    : false
+                }
+                value={confirmPassword === null ? "" : confirmPassword}
                 margin="normal"
                 variant="outlined"
-              />
-              <Button
-                variant="contained"
-                fullWidth
-                color="primary"
-                onClick={() => {
-                  //loginWithEmailPassword(email, password);
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="Toggle password visibility"
+                        onClick={() => {
+                          setShowConfirmPassword(!showConfirmPassword);
+                        }}
+                      >
+                        {!showConfirmPassword ? (
+                          <VisibilityOff />
+                        ) : (
+                          <Visibility />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  )
                 }}
-              >
-                Signup
-              </Button>
-            </div>
-          )}
+              />
+            </FormControl>
+            <Button
+              variant="contained"
+              fullWidth
+              color="primary"
+              type="submit"
+              onClick={() => {
+                //loginWithEmailPassword(email, password);
+              }}
+            >
+              Signup
+            </Button>
+          </form>
+        )}
 
+        <FormControl fullWidth margin="normal">
           <Button
             fullWidth
             color="primary"
@@ -103,7 +190,7 @@ export default function Signup(props) {
           >
             Login
           </Button>
-        </form>
+        </FormControl>
       </div>
     </React.Fragment>
   );
