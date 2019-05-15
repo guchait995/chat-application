@@ -37,9 +37,36 @@ body {
   cursor: pointer;
   font-size: 20px;
 }
+/* Loading Page */
+.full-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.514);
+  width: 100vw;
+  height: 100vh;
+  z-index: 700 !important;
+  overflow: hidden;
+}
+.loading-rotate {
+  margin-top: 350px;
+  border-radius: 30px;
+  padding: 5px;
+  width: 50px;
+  height: 50px;
+  content: url("../Components/emoticons/loading.svg");
+}
+.centre {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* Loading Page */
+
 .login-dialog {
   width: 50%;
   min-width: 300px;
+  max-width: 400px;
   margin-left: auto;
   margin-right: auto;
   padding: 30px;

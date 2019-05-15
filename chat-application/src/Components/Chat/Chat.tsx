@@ -1,12 +1,20 @@
-import React from "react";
+import React, { useContext } from "react";
+import LoginContext from "../../Contexts/LoginContext";
 
 export default function Chat(props) {
   const { name, message, timeStamp } = props.chat;
   var date = new Date(timeStamp);
-
+  const {
+    state: { loginInfo },
+    actions: { loginWithEmailPassword, verifyToken }
+  } = useContext<any>(LoginContext);
   return (
     <div className="chat">
-      <div className={name === "sourav" ? "chat-buble-own" : "chat-buble"}>
+      <div
+        className={
+          name === loginInfo.user.username ? "chat-buble-own" : "chat-buble"
+        }
+      >
         <div className="chat-sender-name">{name}</div>
         <div className="chat-message">{message}</div>
         <div className="timeStamp">{formatAMPM(date)}</div>

@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import HappySmiley from "../emoticons/happy.png";
 import axios from "axios";
 import { openSnackbar } from "../CustomSnackbar";
+import LoginContext from "../../Contexts/LoginContext";
 export default function ChatInputLayout() {
   const [text, setText] = useState();
-
+  const {
+    state: { loginInfo },
+    actions: { loginWithEmailPassword, verifyToken }
+  } = useContext<any>(LoginContext);
   const handleSend = () => {
-    console.log(text);
+    const AuthStr = "Bearer ".concat(loginInfo.idToken);
     axios
       .post(
         "https://us-central1-chat-application-4596f.cloudfunctions.net/app/chatPost",
@@ -16,9 +20,10 @@ export default function ChatInputLayout() {
           chat: {
             message: text,
             timeStamp: Date.now(),
-            name: "sourav"
+            name: loginInfo.user.username
           }
-        }
+        },
+        { headers: { Authorization: AuthStr } }
       )
       .then(res => {
         setText("");

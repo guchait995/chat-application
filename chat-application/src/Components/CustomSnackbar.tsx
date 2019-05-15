@@ -6,6 +6,7 @@ export default function CustomSnackbar() {
     open: boolean;
     message: string;
     timeout: number;
+    src?: string;
     onhide?: (param?) => any;
   }
   const [snack, setSnack] = useState<snack>({
@@ -14,12 +15,13 @@ export default function CustomSnackbar() {
     timeout: 0
   });
 
-  const openSnackbar = ({ message, timeout, onhide }) => {
+  const openSnackbar = ({ message, timeout, onhide, src }) => {
     setSnack({
       timeout: timeout,
       open: true,
       message: message,
-      onhide: onhide
+      onhide: onhide,
+      src: src
     });
   };
 

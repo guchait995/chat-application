@@ -1,29 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Chat from "./Chat";
 import axios from "axios";
+import LoginContext from "../../Contexts/LoginContext";
 export default function ChatDisplay() {
   const [messages, setMessages] = useState([]);
-  const chats = [
-    { message: "hi", senderName: "sourav", timeStamp: "10:00 pm" },
-    { message: "hello", senderName: "pragya", timeStamp: "10:02 pm" },
-    { message: "ki korcho ??", senderName: "sourav", timeStamp: "10:05 pm" },
-    { message: "drawing", senderName: "pragya", timeStamp: "10:07 pm" },
-    { message: "koi dekhao", senderName: "sourav", timeStamp: "10:10 pm" },
-    { message: "koi gooo", senderName: "sourav", timeStamp: "10:15 pm" },
-    { message: "hello", senderName: "sourav", timeStamp: "10:30 pm" },
-    { message: "hi", senderName: "sourav", timeStamp: "10:00 pm" },
-    { message: "hello", senderName: "pragya", timeStamp: "10:02 pm" },
-    { message: "ki korcho ??", senderName: "sourav", timeStamp: "10:05 pm" },
-    { message: "drawing", senderName: "pragya", timeStamp: "10:07 pm" },
-    { message: "koi dekhao", senderName: "sourav", timeStamp: "10:10 pm" },
-    { message: "koi gooo", senderName: "sourav", timeStamp: "10:15 pm" },
-    { message: "hello", senderName: "sourav", timeStamp: "10:30 pm" }
-  ];
   var isMounted = true;
+  const {
+    state: { loginInfo },
+    actions: { loginWithEmailPassword, verifyToken }
+  } = useContext<any>(LoginContext);
   const getMessages = () => {
+    const AuthStr = "Bearer ".concat(loginInfo.idToken);
     axios
       .get(
-        "https://us-central1-chat-application-4596f.cloudfunctions.net/app/chats"
+        "https://us-central1-chat-application-4596f.cloudfunctions.net/app/chats",
+        { headers: { Authorization: AuthStr } }
       )
       .then(res => {
         setMessages(res.data);
