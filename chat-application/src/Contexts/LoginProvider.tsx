@@ -22,7 +22,6 @@ export default function LoginProvider(props) {
       .then(res => {
         if (res) {
           var idToken = res.data.idToken;
-          console.log(idToken);
           setLoginInfo({
             ...loginInfo,
             idToken: idToken
@@ -48,7 +47,7 @@ export default function LoginProvider(props) {
       )
       .then(res => {
         setLoginInfo({ ...loginInfo, user: res.data.user, isLoggedIn: true });
-        console.log(res);
+        // console.log(res);
       })
       .catch(err => {
         setLoginInfo({ ...loginInfo, user: null, isLoggedIn: false });

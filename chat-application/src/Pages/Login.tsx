@@ -28,7 +28,6 @@ export default function Login() {
           <h1>Welcome !!!</h1>
           <form>
             <TextField
-              id="outlined-name"
               label="Email"
               fullWidth
               type="email"
@@ -39,7 +38,6 @@ export default function Login() {
               variant="outlined"
             />
             <TextField
-              id="outlined-name"
               label="Password"
               fullWidth
               type="password"

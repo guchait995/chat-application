@@ -1,18 +1,12 @@
 import React, { useContext } from "react";
-import logo from "./logo.svg";
-import { Redirect, HashRouter, Router } from "react-router-dom";
+import { HashRouter, Route } from "react-router-dom";
 import "./App.css";
 import "./styles/stylesheet.css";
-import Header from "./Layout/Header";
 import Login from "./Pages/Login";
-import ChatScreen from "./Components/Chat/ChatScreen";
 import LoginContext from "./Contexts/LoginContext";
-import Route from "react-router-dom/Route";
 import Chats from "./Pages/Chats";
 import LoginProvider from "./Contexts/LoginProvider";
 import LoadingPage from "./Components/LoadingPage";
-import Signup from "./Pages/Signup";
-
 function App() {
   return (
     <div>
