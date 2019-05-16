@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 
 import { Redirect, NavLink, HashRouter, Router } from "react-router-dom";
@@ -14,11 +14,11 @@ export default function Login() {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [isSignUp, setIsSignUp] = useState<boolean>(false);
-
   const {
     state: { loginInfo },
-    actions: { loginWithEmailPassword, verifyToken }
+    actions: { loginWithEmailAndPwd }
   } = useContext<any>(LoginContext);
+
   if (!isSignUp)
     return (
       <React.Fragment>
@@ -51,7 +51,8 @@ export default function Login() {
               fullWidth
               color="primary"
               onClick={() => {
-                loginWithEmailPassword(email, password);
+                loginWithEmailAndPwd(email, password);
+                // loginWithEmailPassword(email, password);
               }}
             >
               Login

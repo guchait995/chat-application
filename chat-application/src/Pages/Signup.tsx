@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Header from "../Layout/Header";
 import {
   TextField,
@@ -11,12 +11,19 @@ import icon from "../Components/emoticons/chat-app-icon.png";
 import { openSnackbar } from "../Components/CustomSnackbar";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
+import { isValidEmail } from "../Utilities/Util";
+import LoginContext from "../Contexts/LoginContext";
 export default function Signup(props) {
+  const {
+    state: { loginInfo },
+    actions: { signUpWithEmailPasswordUsername }
+  } = useContext<any>(LoginContext);
   const [userName, setUserName] = useState<string | null>(null);
   const [isUserNameConfirmed, setIsUserNameConfimed] = useState<boolean>(false);
   const [userExist, setUserExist] = useState<boolean | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isValidForm, setIsValidForm] = useState<number>(0);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(
     false
   );
@@ -34,6 +41,10 @@ export default function Signup(props) {
         openSnackbar({ message: "Username Available", timeout: 3000 });
       }
     }
+  };
+
+  const handleSignUp = (email, password, userName) => {
+    signUpWithEmailPasswordUsername(email, password, userName);
   };
 
   return (
@@ -81,6 +92,14 @@ export default function Signup(props) {
               <TextField
                 label="Email"
                 type="email"
+                error={email != null ? !isValidEmail(email) : false}
+                helperText={
+                  email != null
+                    ? !isValidEmail(email)
+                      ? "Please enter a valid email"
+                      : null
+                    : null
+                }
                 value={email === null ? "" : email}
                 onChange={e => {
                   setEmail(e.currentTarget.value);
@@ -170,9 +189,16 @@ export default function Signup(props) {
               variant="contained"
               fullWidth
               color="primary"
+              disabled={
+                !(password != null && confirmPassword != null
+                  ? password == confirmPassword
+                    ? isValidEmail(email)
+                    : false
+                  : false)
+              }
               type="submit"
               onClick={() => {
-                //loginWithEmailPassword(email, password);
+                handleSignUp(email, password, userName);
               }}
             >
               Signup

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import Chat from "./Chat";
 import axios from "axios";
 import LoginContext from "../../Contexts/LoginContext";
-import { getDb } from "../../Firebase/CloudMessaging";
+import { getDb, getConnectionStatus } from "../../Firebase/FirebaseDao";
 export default function ChatDisplay() {
   const [messages, setMessages] = useState<any[]>([]);
   var isMounted = true;
@@ -10,36 +10,11 @@ export default function ChatDisplay() {
     state: { loginInfo },
     actions: { loginWithEmailPassword, verifyToken }
   } = useContext<any>(LoginContext);
-  const getMessages = () => {
-    // const AuthStr = "Bearer ".concat(loginInfo.idToken);
-    // axios
-    //   .get(
-    //     "https://us-central1-chat-application-4596f.cloudfunctions.net/app/chats",
-    //     { headers: { Authorization: AuthStr } }
-    //   )
-    //   .then(res => {
-    //     setMessages(res.data);
-    //   })
-    //   .catch(err => {
-    //     console.error(err);
-    //   });
-    var mes: any[] = [];
-    var coll = getDb().collection("chats");
-    var observer = coll.onSnapshot(
-      collSnapshot => {
-        collSnapshot.forEach(documentSnapshot => {
-          var data = documentSnapshot.data();
-          if (data) mes.push(data);
-        });
-        console.log(mes);
-        setMessages(mes);
-      },
-      err => {}
-    );
-  };
+  const [scrollToref, setScrollToref] = useState<any>();
   useEffect(() => {
     if (isMounted) {
       isMounted = false;
+      getConnectionStatus(loginInfo.uid);
       var coll = getDb().collection("chats");
       var observer = coll.onSnapshot(
         collSnapshot => {
@@ -57,10 +32,27 @@ export default function ChatDisplay() {
   return (
     <div className="chats">
       <div className="chats-display">
-        {messages.map((chat, key) => {
-          return <Chat chat={chat} key={key} />;
-        })}
+        {messages.length > 0
+          ? messages.map((chat, key) => {
+              return (
+                <Chat chat={chat} index={key} totalChats={messages.length} />
+              );
+            })
+          : null}
       </div>
     </div>
   );
 }
+
+// const AuthStr = "Bearer ".concat(loginInfo.idToken);
+// axios
+//   .get(
+//     "https://us-central1-chat-application-4596f.cloudfunctions.net/app/chats",
+//     { headers: { Authorization: AuthStr } }
+//   )
+//   .then(res => {
+//     setMessages(res.data);
+//   })
+//   .catch(err => {
+//     console.error(err);
+//   });

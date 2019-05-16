@@ -4,12 +4,32 @@ const bodyParser = require("body-parser");
 const axios = require("axios");
 const cors = require("cors")({ origin: true });
 const express = require("express");
-const app = express();
+const appExpress = express();
 admin.initializeApp();
 const db = admin.firestore();
+const rdb = admin.database();
 const apiKey = "AIzaSyCczyYTfWTySspf_s6Dne_ncxW5mr70s_w";
-
+var mounted = false;
+if (!mounted) {
+  onlineUsersListner();
+  mounted = true;
+}
 //signUp User
+function onlineUsersListner() {
+  rdb.ref("/status/").on("child_changed" || "child_added", snapshot => {
+    if (snapshot.key != null) {
+      const userDoc = db
+        .doc(`users/${snapshot.key}`)
+        .set(snapshot.val(), { merge: true })
+        .then(doc => {
+          console.log(doc);
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+  });
+}
 exports.signUpNewUser = functions.https.onRequest((req, res) => {
   const handleError = (username, error) => {
     console.error({ User: username }, error);
@@ -62,7 +82,6 @@ exports.signUpNewUser = functions.https.onRequest((req, res) => {
         .then(async resp => {
           //this body has body.uid and body.idToken
           try {
-            console.log("line55: ", { user });
             await db.doc(`users/${resp.data.localId}`).set(user); //sets up new user after sign up..!!
           } catch (e) {
             console.log(e);
@@ -227,16 +246,16 @@ const validateFirebaseIdToken = async (req, res, next) => {
   }
 };
 
-app.use(cors);
-app.use(validateFirebaseIdToken);
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
-app.get("/", (req, res) => {
+appExpress.use(cors);
+appExpress.use(validateFirebaseIdToken);
+appExpress.use(bodyParser.json()); // support json encoded bodies
+appExpress.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+appExpress.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
 //get user using  id token in bearer
-app.get("/getUser", async (req, res) => {
+appExpress.post("/getUser", async (req, res) => {
   try {
     console.log(req);
     const userDoc = await db.doc(`users/${req.user.uid}`).get();
@@ -245,7 +264,17 @@ app.get("/getUser", async (req, res) => {
       res.status(404).send("User not found");
       return;
     }
-    res.status(200).send({ user: userData });
+    var uid;
+    if (req.body) {
+      uid = req.body.uid;
+    }
+    // {
+    //   "email": "guchaitsourav@gmail.com",
+    //     "username": "sourav"
+    // }
+    res.status(200).send({
+      user: { email: userData.email, username: userData.username, uid: uid }
+    });
     return;
   } catch (err) {
     console.error(err);
@@ -253,7 +282,7 @@ app.get("/getUser", async (req, res) => {
   }
 });
 
-app.get("/chats", async (req, res) => {
+appExpress.get("/chats", async (req, res) => {
   try {
     var chats = [];
     await db
@@ -271,7 +300,7 @@ app.get("/chats", async (req, res) => {
     console.error(err);
   }
 });
-app.post("/chatPost", async (req, res) => {
+appExpress.post("/chatPost", async (req, res) => {
   var body = req.body;
   if (body) {
     var time = req.body.chat.timeStamp;
@@ -288,4 +317,4 @@ app.post("/chatPost", async (req, res) => {
   }
 });
 
-exports.app = functions.https.onRequest(app);
+exports.appExpress = functions.https.onRequest(appExpress);

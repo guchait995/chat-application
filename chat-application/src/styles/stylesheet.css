@@ -186,9 +186,10 @@ body {
   padding: 10px;
 }
 .popupmenu > h3 {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 400;
   margin: 2px;
+  display: inline;
 }
 .popupmenu > h5 {
   font-size: 20px;
@@ -206,8 +207,18 @@ body {
   width: 14px;
   height: 14px;
   border-radius: 7px;
-  float: left;
+  float: right;
   margin-right: 5px;
+}
+.last-seen {
+  float: right;
+  color: rgb(98, 98, 184);
+  border-color: rgb(98, 98, 184);
+  border-width: 2px;
+  font-size: 10px;
+  border-radius: 5px;
+  padding: 2px;
+  border-style: solid;
 }
 .popupmenu > .online-user {
   font-size: 12px;
@@ -229,4 +240,10 @@ body {
 .online-usernames {
   max-height: 150px;
   overflow-y: scroll;
+}
+.logout-button {
+  float: right;
+  margin-right: 0px;
+  margin-left: 10px;
+  color: #03284e;
 }

@@ -21,7 +21,7 @@ export default function Header() {
             setOpen(!open);
           }}
         >
-          {loginInfo.user == null ? null : (
+          {loginInfo.userDetails == null ? null : (
             <React.Fragment>
               <img src={menu} />
               <PopupMenu

@@ -5,6 +5,7 @@ import HappySmiley from "../emoticons/happy.png";
 import axios from "axios";
 import { openSnackbar } from "../CustomSnackbar";
 import LoginContext from "../../Contexts/LoginContext";
+import { postMessage } from "../../Firebase/FirebaseDao";
 export default function ChatInputLayout() {
   const [text, setText] = useState();
   const {
@@ -12,34 +13,11 @@ export default function ChatInputLayout() {
     actions: { loginWithEmailPassword, verifyToken }
   } = useContext<any>(LoginContext);
   const handleSend = () => {
-    const AuthStr = "Bearer ".concat(loginInfo.idToken);
-    axios
-      .post(
-        "https://us-central1-chat-application-4596f.cloudfunctions.net/app/chatPost",
-        {
-          chat: {
-            message: text,
-            timeStamp: Date.now(),
-            name: loginInfo.user.username
-          }
-        },
-        { headers: { Authorization: AuthStr } }
-      )
-      .then(res => {
-        setText("");
-        openSnackbar({ message: res.data.message, timeout: 3000 });
-      })
-      .catch(err => {
-        alert("cathed" + err);
-      });
+    setText("");
+    postMessage(text, loginInfo.userDetails.username);
   };
   return (
     <div className="chat-input-layout">
-      {/* <div className="chat-suggest">
-        <span>Suggested Emoji :</span>
-
-        <img src={HappySmiley} className="emoji" />
-      </div> */}
       <div className="chat-input-box">
         <TextField
           id="standard-dense"
@@ -66,3 +44,31 @@ export default function ChatInputLayout() {
     </div>
   );
 }
+{
+  /* <div className="chat-suggest">
+        <span>Suggested Emoji :</span>
+
+        <img src={HappySmiley} className="emoji" />
+      </div> */
+}
+
+// const AuthStr = "Bearer ".concat(loginInfo.idToken);
+// axios
+//   .post(
+//     "https://us-central1-chat-application-4596f.cloudfunctions.net/appExpress/chatPost",
+//     {
+//       chat: {
+//         message: text,
+//         timeStamp: Date.now(),
+//         name: loginInfo.user.username
+//       }
+//     },
+//     { headers: { Authorization: AuthStr } }
+//   )
+//   .then(res => {
+//     setText("");
+//     openSnackbar({ message: res.data.message, timeout: 3000 });
+//   })
+//   .catch(err => {
+//     alert("cathed" + err);
+//   });

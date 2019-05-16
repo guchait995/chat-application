@@ -1,18 +1,36 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import LoginContext from "../../Contexts/LoginContext";
+import { fromatTimeStamp } from "../../Utilities/Util";
 
 export default function Chat(props) {
   const { name, message, timeStamp } = props.chat;
+
+  const { index, totalChats } = props;
   var date = new Date(timeStamp);
   const {
     state: { loginInfo },
     actions: { loginWithEmailPassword, verifyToken }
   } = useContext<any>(LoginContext);
+  const [chatRef, setChatRef] = useState<HTMLDivElement>();
+  useEffect(() => {
+    if (index === totalChats - 1) {
+      if (chatRef) {
+        chatRef.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [chatRef]);
   return (
-    <div className="chat">
+    <div
+      className="chat"
+      ref={el => {
+        if (el) setChatRef(el);
+      }}
+    >
       <div
         className={
-          name === loginInfo.user.username ? "chat-buble-own" : "chat-buble"
+          name === loginInfo.userDetails.username
+            ? "chat-buble-own"
+            : "chat-buble"
         }
       >
         <div className="chat-sender-name">{name}</div>

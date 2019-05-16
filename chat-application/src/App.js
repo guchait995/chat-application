@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { HashRouter, Route } from "react-router-dom";
 import "./App.css";
 import "./styles/stylesheet.css";
@@ -7,13 +7,14 @@ import LoginContext from "./Contexts/LoginContext";
 import Chats from "./Pages/Chats";
 import LoginProvider from "./Contexts/LoginProvider";
 import LoadingPage from "./Components/LoadingPage";
+import { getAuth, getConnectionStatus } from "./Firebase/FirebaseDao";
 function App() {
   return (
     <div>
       <LoginProvider>
         <HashRouter>
           <Route path="/" component={LoginWrapper} />
-          <Route path="/chats" component={Chats} />
+          <PrivateRoute path="/chats" component={Chats} />
         </HashRouter>
       </LoginProvider>
     </div>
@@ -23,28 +24,57 @@ function App() {
 function LoginWrapper(props) {
   const {
     state: { loginInfo },
-    actions: { loginWithEmailPassword, verifyToken }
+    actions: { getuserDetails, setLoginDetails }
   } = useContext(LoginContext);
-  if (
-    !loginInfo.isLoggedIn &&
-    loginInfo.user == null &&
-    loginInfo.idToken == null
-  ) {
-    //user isnt logged in
+  useEffect(() => {
+    var isMounted = false;
+    if (!isMounted) {
+      isMounted = true;
+
+      getAuth().onAuthStateChanged(firebaseUser => {
+        var user = firebaseUser;
+        if (user) {
+          setLoginDetails(true, user.uid, null);
+        } else {
+          setLoginDetails(false, null, null);
+        }
+      });
+    }
+  }, []);
+
+  if (loginInfo.isLoggedIn == false && loginInfo.uid == null) {
     return <Login />;
   }
   if (
-    !loginInfo.isLoggedIn &&
-    loginInfo.user == null &&
-    loginInfo.idToken != null
+    loginInfo.isLoggedIn &&
+    loginInfo.userDetails != null &&
+    loginInfo.uid != null
   ) {
-    verifyToken(loginInfo.idToken);
-    return <LoadingPage />;
-  }
-  if (loginInfo.isLoggedIn && loginInfo.user != null) {
     //mainpage
     return <Chats />;
   }
+  if (loginInfo.uid != null) {
+    getuserDetails(loginInfo.uid);
+  }
+  return <LoadingPage />;
+}
+
+function PrivateRoute({ component: Component, ...rest }) {
+  const {
+    state: { loginInfo }
+  } = useContext(LoginContext);
+
+  return (
+    <Route
+      {...rest}
+      render={props => {
+        if (!loginInfo.isLoggedIn) {
+          return <Login {...props} />;
+        }
+        return <Component {...props} />;
+      }}
+    />
+  );
 }
 
 export default App;
