@@ -18,6 +18,7 @@ export function getDb() {
 export function getAuth() {
   return firebase.auth();
 }
+
 var isOfflineForDatabase = {
   state: "offline",
   last_changed: firebase.database.ServerValue.TIMESTAMP
@@ -27,6 +28,17 @@ var isOnlineForDatabase = {
   state: "online",
   last_changed: firebase.database.ServerValue.TIMESTAMP
 };
+export async function isUserExist(username) {
+  console.log(username);
+  var doc = await getDb()
+    .collection("usernames")
+    .doc(username)
+    .get();
+  if (doc.data() != null) {
+    return true;
+  }
+  return false;
+}
 export function getConnectionStatus(uid) {
   var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
   firebase
@@ -37,6 +49,7 @@ export function getConnectionStatus(uid) {
       if (snapshot.val() == false) {
         return 0;
       }
+      //if we are connected
       userStatusDatabaseRef
         .onDisconnect()
         .set(isOfflineForDatabase)
@@ -47,6 +60,13 @@ export function getConnectionStatus(uid) {
         });
     });
 }
+export const onOnlineOfflineStateChange = (uid, state) => {
+  var timeStamp = new Date().getTime();
+  getDb()
+    .collection("users")
+    .doc(uid)
+    .set({ state: state, last_changed: timeStamp }, { merge: true });
+};
 export const setOffline = uid => {
   var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
   userStatusDatabaseRef.set(isOfflineForDatabase);

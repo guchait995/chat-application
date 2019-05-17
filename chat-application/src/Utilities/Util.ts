@@ -25,6 +25,9 @@ function calcDate(time) {
   if (min > 1) {
     return min + " MIN";
   }
+  if (min <= 1) {
+    return "1 MIN";
+  }
   return null;
 }
 

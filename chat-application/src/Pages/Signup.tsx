@@ -13,6 +13,8 @@ import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { isValidEmail } from "../Utilities/Util";
 import LoginContext from "../Contexts/LoginContext";
+import { isUserExist } from "../Firebase/FirebaseDao";
+import { async } from "q";
 export default function Signup(props) {
   const {
     state: { loginInfo },
@@ -29,13 +31,16 @@ export default function Signup(props) {
   );
   const [password, setPassword] = useState<string | null>(null);
   const [confirmPassword, setConfirmPassword] = useState<string | null>(null);
-  const checkUserExist = () => {
+  const checkUserExist = async () => {
     var elem = document.getElementsByName("username");
     if (elem) {
-      if (userName === "sourav") {
+      var exists = await isUserExist(userName);
+      if (exists) {
+        console.log("here");
         setUserExist(true);
-        openSnackbar({ message: "User name Exists", timeout: 3000 });
+        openSnackbar({ message: "Username Exists", timeout: 3000 });
       } else {
+        console.log("her2");
         setUserExist(false);
         setIsUserNameConfimed(true);
         openSnackbar({ message: "Username Available", timeout: 3000 });
@@ -58,11 +63,7 @@ export default function Signup(props) {
           <h1>Chat App Welcomes You!!! {userName}</h1>
         )}
         {isUserNameConfirmed === false ? (
-          <form
-            onSubmit={() => {
-              checkUserExist();
-            }}
-          >
+          <React.Fragment>
             <TextField
               label="Username"
               fullWidth
@@ -85,9 +86,9 @@ export default function Signup(props) {
             >
               Check Username
             </Button>
-          </form>
+          </React.Fragment>
         ) : (
-          <form onSubmit={() => {}}>
+          <React.Fragment>
             <FormControl fullWidth>
               <TextField
                 label="Email"
@@ -203,7 +204,7 @@ export default function Signup(props) {
             >
               Signup
             </Button>
-          </form>
+          </React.Fragment>
         )}
 
         <FormControl fullWidth margin="normal">
