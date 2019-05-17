@@ -7,14 +7,18 @@ import { openSnackbar } from "../CustomSnackbar";
 import LoginContext from "../../Contexts/LoginContext";
 import { postMessage } from "../../Firebase/FirebaseDao";
 export default function ChatInputLayout() {
-  const [text, setText] = useState();
+  const [text, setText] = useState<string>("");
   const {
     state: { loginInfo },
     actions: { loginWithEmailPassword, verifyToken }
   } = useContext<any>(LoginContext);
   const handleSend = () => {
     setText("");
-    postMessage(text, loginInfo.userDetails.username);
+    postMessage(
+      text,
+      loginInfo.userDetails.username,
+      loginInfo.userDetails.color
+    );
   };
   return (
     <div className="chat-input-layout">
@@ -35,6 +39,7 @@ export default function ChatInputLayout() {
         <Button
           variant="contained"
           color="primary"
+          disabled={text.length == 0}
           className="send-button"
           onClick={handleSend}
         >

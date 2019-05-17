@@ -1,3 +1,5 @@
+import { USERNAME_COLORS } from "../AppConstants";
+
 export const getLastSeen = time => {
   return calcDate(time);
 };
@@ -52,4 +54,10 @@ export const fromatTimeStamp = time => {
   minutes = minutes < 10 ? 0 + minutes : minutes;
   var strTime = hours + ":" + minutes + " " + ampm;
   return strTime;
+};
+
+export const getRandomColor = () => {
+  var color =
+    USERNAME_COLORS[(Math.random() * 1000000) % USERNAME_COLORS.length];
+  return color;
 };

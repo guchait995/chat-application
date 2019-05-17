@@ -15,6 +15,11 @@ import { isValidEmail } from "../Utilities/Util";
 import LoginContext from "../Contexts/LoginContext";
 import { isUserExist } from "../Firebase/FirebaseDao";
 import { async } from "q";
+import {
+  USERNAME_EXIST,
+  USERNAME_AVAILABLE,
+  SNACKBAR_TIMEOUT
+} from "../AppConstants";
 export default function Signup(props) {
   const {
     state: { loginInfo },
@@ -36,14 +41,15 @@ export default function Signup(props) {
     if (elem) {
       var exists = await isUserExist(userName);
       if (exists) {
-        console.log("here");
         setUserExist(true);
-        openSnackbar({ message: "Username Exists", timeout: 3000 });
+        openSnackbar({ message: USERNAME_EXIST, timeout: SNACKBAR_TIMEOUT });
       } else {
-        console.log("her2");
         setUserExist(false);
         setIsUserNameConfimed(true);
-        openSnackbar({ message: "Username Available", timeout: 3000 });
+        openSnackbar({
+          message: USERNAME_AVAILABLE,
+          timeout: SNACKBAR_TIMEOUT
+        });
       }
     }
   };

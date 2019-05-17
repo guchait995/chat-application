@@ -1,9 +1,8 @@
 import React, { useContext, useState, useEffect } from "react";
 import LoginContext from "../../Contexts/LoginContext";
-import { fromatTimeStamp } from "../../Utilities/Util";
 
 export default function Chat(props) {
-  const { name, message, timeStamp } = props.chat;
+  const { name, message, timeStamp, color } = props.chat;
 
   const { index, totalChats } = props;
   var date = new Date(timeStamp);
@@ -13,6 +12,7 @@ export default function Chat(props) {
   } = useContext<any>(LoginContext);
   const [chatRef, setChatRef] = useState<HTMLDivElement>();
   useEffect(() => {
+    console.log(loginInfo.userDetails);
     if (index === totalChats - 1) {
       if (chatRef) {
         chatRef.scrollIntoView({ behavior: "smooth" });
@@ -33,7 +33,9 @@ export default function Chat(props) {
             : "chat-buble"
         }
       >
-        <div className="chat-sender-name">{name}</div>
+        <div className="chat-sender-name" style={{ color }}>
+          {name}
+        </div>
         <div className="chat-message">{message}</div>
         <div className="timeStamp">{formatAMPM(date)}</div>
       </div>

@@ -3,6 +3,15 @@ import axios from "axios";
 import LoginContext from "./LoginContext";
 import { getAuth, getDb } from "../Firebase/FirebaseDao";
 import { userInfo } from "os";
+import { openSnackbar } from "../Components/CustomSnackbar";
+import {
+  LOGIN_EMAIL_NOT_FOUND,
+  SNACKBAR_TIMEOUT,
+  LOGIN_FAILED_MESSAGE,
+  SIGNUP_EMAIL_ALREADY_FOUND,
+  USERNAME_COLORS
+} from "../AppConstants";
+import { getRandomColor } from "../Utilities/Util";
 export interface LoginInfo {
   isLoggedIn: boolean | null;
   userDetails?: any | null;
@@ -25,15 +34,34 @@ export default function LoginProvider(props) {
     });
   };
   const loginWithEmailAndPwd = async (email, password) => {
-    getAuth().signInWithEmailAndPassword(email, password);
+    getAuth()
+      .signInWithEmailAndPassword(email, password)
+      .then(res => {})
+      .catch(err => {
+        console.log(err);
+        if (err.code === "auth/user-not-found")
+          openSnackbar({
+            message: LOGIN_EMAIL_NOT_FOUND,
+            timeout: SNACKBAR_TIMEOUT
+          });
+        else
+          openSnackbar({
+            message: LOGIN_FAILED_MESSAGE,
+            timeout: SNACKBAR_TIMEOUT
+          });
+      });
   };
   const signUpWithEmailPasswordUsername = (email, password, username) => {
     getAuth()
       .createUserWithEmailAndPassword(email, password)
       .then(firebaseUser => {
+        var color = getRandomColor();
         var user = firebaseUser.user;
-        console.log(user);
         if (user) {
+          getDb()
+            .collection("usernames")
+            .doc(username)
+            .set({ email: email });
           getDb()
             .collection("users")
             .doc(user.uid)
@@ -41,16 +69,18 @@ export default function LoginProvider(props) {
               email: email,
               username: username,
               state: "online",
-              last_changed: 1000000
+              last_changed: 1558097573186,
+              color: color
             });
-          getDb()
-            .collection("usernames")
-            .doc(username)
-            .set({ email: email });
         }
       })
       .catch(err => {
-        console.log(err);
+        if (err.code == "auth/email-already-in-use") {
+          openSnackbar({
+            message: SIGNUP_EMAIL_ALREADY_FOUND,
+            timeout: SNACKBAR_TIMEOUT
+          });
+        }
       });
   };
   const getuserDetails = uid => {
@@ -63,16 +93,18 @@ export default function LoginProvider(props) {
         if (data) {
           var username = data.username;
           var email = data.email;
-          var lastOnlineChange = data.last_change;
-          var status = data.status;
+          var last_changed = data.last_changed;
+          var state = data.state;
+          var color = data.color;
         }
         setLoginInfo({
           ...loginInfo,
           userDetails: {
             username: username,
             email: email,
-            lastOnlineChange: lastOnlineChange,
-            status: status
+            last_changed: last_changed,
+            state: state,
+            color: color
           }
         });
       })

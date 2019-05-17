@@ -3,7 +3,6 @@ import TextField from "@material-ui/core/TextField";
 
 import { Redirect, NavLink, HashRouter, Router } from "react-router-dom";
 import Button from "@material-ui/core/Button";
-import { openSnackbar } from "../Components/CustomSnackbar";
 import icon from "../Components/emoticons/chat-app-icon.png";
 import axios from "axios";
 import LoginContext from "../Contexts/LoginContext";

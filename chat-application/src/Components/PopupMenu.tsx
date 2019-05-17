@@ -27,7 +27,14 @@ export default function PopupMenu(props) {
         var users: any[] = [];
         collSnapshot.forEach(documentSnapshot => {
           var data = documentSnapshot.data();
-          if (data) users.push(data);
+          if (data) {
+            if (
+              loginInfo.userDetails.username != data.username &&
+              data.username != null &&
+              data.last_changed > 10000
+            )
+              users.push(data);
+          }
         });
         setAllUsers(users);
       });
@@ -62,45 +69,39 @@ export default function PopupMenu(props) {
     >
       <div className="popupmenu">
         <div className="username-container">
-          <span className="left">
-            <h3 className="popupmenu-username">
-              {loginInfo.userDetails.username}
-            </h3>
-          </span>
-          <span className="right">
-            <Button
-              onClick={() => {
-                handleLogout();
-              }}
-              className="logout-button"
-            >
-              LOGOUT
-            </Button>
-          </span>
+          <h3 className="popupmenu-username">
+            {loginInfo.userDetails.username}
+          </h3>
+          <Button
+            onClick={() => {
+              handleLogout();
+            }}
+            className="logout-button"
+          >
+            LOGOUT
+          </Button>
         </div>
-        <br className="break" />
         <div className="line-break" />
         <h5>{loginInfo.userDetails.email}</h5>
         <div className="online-user">USERS</div>
         <div className="line-break" />
         <div className="online-usernames">
           {allUsers.map((online, key) => {
-            if (online.username != loginInfo.uid)
-              return (
-                <React.Fragment key={key}>
-                  {key !== 0 ? <div className="light-line-break" /> : null}
-                  <div className="online-username">
-                    {online.username}
-                    {online.state === "online" ? (
-                      <div className="online" />
-                    ) : (
-                      <div className="last-seen">
-                        {getLastSeen(online.last_changed)}
-                      </div>
-                    )}
-                  </div>
-                </React.Fragment>
-              );
+            return (
+              <React.Fragment key={key}>
+                {key !== 0 ? <div className="light-line-break" /> : null}
+                <div className="online-username">
+                  {online.username}
+                  {online.state === "online" ? (
+                    <div className="online" />
+                  ) : (
+                    <div className="last-seen">
+                      {getLastSeen(online.last_changed)}
+                    </div>
+                  )}
+                </div>
+              </React.Fragment>
+            );
           })}
         </div>
         <div />

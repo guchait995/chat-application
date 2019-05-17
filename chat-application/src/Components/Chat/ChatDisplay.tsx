@@ -8,9 +8,8 @@ export default function ChatDisplay() {
   var isMounted = true;
   const {
     state: { loginInfo },
-    actions: { loginWithEmailPassword, verifyToken }
+    actions: {}
   } = useContext<any>(LoginContext);
-  const [scrollToref, setScrollToref] = useState<any>();
   useEffect(() => {
     if (isMounted) {
       isMounted = false;

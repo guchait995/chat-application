@@ -1,6 +1,11 @@
 import * as firebase from "firebase";
 import axios from "axios";
 import { openSnackbar } from "../Components/CustomSnackbar";
+import {
+  MESSAGE_SENT_SUCCESSFULLY,
+  MESSAGE_SENT_FAILED,
+  SNACKBAR_TIMEOUT
+} from "../AppConstants";
 const firebaseConfig = {
   apiKey: "AIzaSyCczyYTfWTySspf_s6Dne_ncxW5mr70s_w",
   authDomain: "chat-application-4596f.firebaseapp.com",
@@ -28,6 +33,8 @@ var isOnlineForDatabase = {
   state: "online",
   last_changed: firebase.database.ServerValue.TIMESTAMP
 };
+
+//if user name already registered
 export async function isUserExist(username) {
   console.log(username);
   var doc = await getDb()
@@ -39,6 +46,8 @@ export async function isUserExist(username) {
   }
   return false;
 }
+
+//returns get connection status by uid
 export function getConnectionStatus(uid) {
   var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
   firebase
@@ -60,6 +69,8 @@ export function getConnectionStatus(uid) {
         });
     });
 }
+
+//setsonline offline state change
 export const onOnlineOfflineStateChange = (uid, state) => {
   var timeStamp = new Date().getTime();
   getDb()
@@ -67,22 +78,27 @@ export const onOnlineOfflineStateChange = (uid, state) => {
     .doc(uid)
     .set({ state: state, last_changed: timeStamp }, { merge: true });
 };
+//sets offline
 export const setOffline = uid => {
   var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
   userStatusDatabaseRef.set(isOfflineForDatabase);
 };
 
-export const postMessage = (message, username) => {
+//post messages to chat
+export const postMessage = (message, username, color) => {
   var date = new Date();
   var time = date.getTime();
   getDb()
     .collection("chats")
     .doc(time.toString())
-    .set({ message: message, name: username, timeStamp: time })
+    .set({ message: message, name: username, timeStamp: time, color: color })
     .then(() => {
-      openSnackbar({ message: "Message Sent Successfully", timeout: 3000 });
+      openSnackbar({
+        message: MESSAGE_SENT_SUCCESSFULLY,
+        timeout: SNACKBAR_TIMEOUT
+      });
     })
     .catch(() => {
-      openSnackbar({ message: "Failed to Sent Message", timeout: 3000 });
+      openSnackbar({ message: MESSAGE_SENT_FAILED, timeout: SNACKBAR_TIMEOUT });
     });
 };
