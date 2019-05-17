@@ -8,6 +8,7 @@ export const USERNAME_AVAILABLE = "Username Available";
 export const USERNAME_EXIST = "Username Taken";
 export const MESSAGE_SENT_SUCCESSFULLY = "Message Sent Successfully";
 export const MESSAGE_SENT_FAILED = "Failed to sent message";
+export const EMOJI_UPDATES = "Sorry!! Working on updates on emoji detection";
 
 //chat username colors
 export const USERNAME_COLORS = [

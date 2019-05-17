@@ -6,6 +6,7 @@ import axios from "axios";
 import { openSnackbar } from "../CustomSnackbar";
 import LoginContext from "../../Contexts/LoginContext";
 import { postMessage } from "../../Firebase/FirebaseDao";
+import { SNACKBAR_TIMEOUT, EMOJI_UPDATES } from "../../AppConstants";
 export default function ChatInputLayout() {
   const [text, setText] = useState<string>("");
   const {
@@ -35,7 +36,13 @@ export default function ChatInputLayout() {
             setText(e.currentTarget.value);
           }}
         />
-        <img src={HappySmiley} className="emoji" />
+        <img
+          src={HappySmiley}
+          className="emoji"
+          onClick={() => {
+            openSnackbar({ message: EMOJI_UPDATES, timeout: SNACKBAR_TIMEOUT });
+          }}
+        />
         <Button
           variant="contained"
           color="primary"
