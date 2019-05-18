@@ -5,10 +5,6 @@ const cors = require("cors")({ origin: true });
 var AYLIENTextAPI = require("aylien_textapi");
 const AYLIEN_ID = "4b14364f";
 const AYLIEN_KEY = "ffb4388d3af9f69af601847fd96d3431";
-// const AYLIEN_URL = "https://api.aylien.com/api/v1/sentiment";
-// const WATSON_URL = "https://gateway-lon.watsonplatform.net/tone-analyzer/api";
-// const WATSON_KEY = "1PQRkOcENisZl_9OCoCLv8YQNLvzxHkBquY7W4p3CiYU";
-// const WATSON_VERSION = "2017-09-21";
 app.use(cors);
 app.use(bodyParser.json());
 app.get("/testApi", async (req, res) => {
