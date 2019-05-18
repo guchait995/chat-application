@@ -2,14 +2,24 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const bodyParser = require("body-parser");
 const axios = require("axios");
+const qs = require("querystring");
+const http = require("https");
 const cors = require("cors")({ origin: true });
 const express = require("express");
+// const qs = require("qs");
+var AYLIENTextAPI = require("aylien_textapi");
+const ToneAnalyzerV3 = require("watson-developer-cloud/tone-analyzer/v3");
 const appExpress = express();
 admin.initializeApp();
 const db = admin.firestore();
 const rdb = admin.database();
-const apiKey = "AIzaSyCczyYTfWTySspf_s6Dne_ncxW5mr70s_w";
-
+const FIREBASE_API_KEY = "AIzaSyCczyYTfWTySspf_s6Dne_ncxW5mr70s_w";
+const AYLIEN_ID = "4b14364f";
+const AYLIEN_KEY = "ffb4388d3af9f69af601847fd96d3431";
+const AYLIEN_URL = "https://api.aylien.com/api/v1/sentiment";
+const WATSON_URL = "https://gateway-lon.watsonplatform.net/tone-analyzer/api";
+const WATSON_KEY = "1PQRkOcENisZl_9OCoCLv8YQNLvzxHkBquY7W4p3CiYU";
+const WATSON_VERSION = "2017-09-21";
 exports.initListener = functions.database
   .ref("/status/")
   .onUpdate((change, context) => {
@@ -47,348 +57,127 @@ exports.initListener = functions.database
       });
     });
   });
-//   .onOperation("child_changed" || "child_added", snapshot => {
-//     console.log("change called");
-//     try {
-//       var data = snapshot.val();
-//       var key = snapshot.key;
-//       if (data) {
-//         console.log(data.last_changed + " , " + data.state);
-//         if (key) {
-//           db.collection("users")
-//             .doc(key)
-//             .set(data, { merge: true })
-//             .then(doc => {
-//               console.log(doc);
-//             })
-//             .catch(err => {
-//               console.error(err);
-//             });
-//         }
-//       }
-//     } catch (e) {
-//       console.log(e);
-//     }
-//   });
 
-// exports.init = functions.https.onRequest((req, res) => {
-//   console.log("initialised");
-//   var onlineRef = rdb.ref("/status/");
-//   console.log(onlineRef.path);
-//   if (onlineRef != null) {
-//     onlineRef.on("child_added" || "child_changed", snapshot => {
-//       var data = snapshot.val();
-//       var key = snapshot.key;
-//       if (data) {
-//         console.log(data.last_changed + " , " + data.state);
-//         if (key) {
-//           db.doc(`users/${key}`)
-//             .set(data, { merge: true })
-//             .then(doc => {
-//               console.log(doc);
-//             })
-//             .catch(err => {
-//               console.error(err);
-//             });
-//         }
-//       }
-//     });
-//     onlineRef.on("value", snapshot => {
-//       var data = snapshot.val();
-//       if (data) {
-//         console.log(data.last_changed + " , " + data.state);
-//       }
-//     });
-//   } else {
-//     console.log("could not find ref");
-//   }
-//   res.status(200).send("initialised");
-// });
-// exports.signUpNewUser = functions.https.onRequest((req, res) => {
-//   const handleError = (username, error) => {
-//     console.error({ User: username }, error);
-//     return res.sendStatus(500);
-//   };
+//ibm watson tone analyser
+exports.geWatsonViaSDK = functions.https.onRequest((req, res) => {
+  const toneAnalyzer = new ToneAnalyzerV3({
+    version: WATSON_VERSION,
+    iam_apikey: WATSON_KEY
+  });
 
-//   const handleResponse = (username, status, body) => {
-//     console.log(
-//       { User: username },
-//       {
-//         Response: {
-//           Status: status,
-//           Body: body
-//         }
-//       }
-//     );
-//     if (body) {
-//       return res.status(200).json(body);
-//     }
-//     return res.sendStatus(status);
-//   };
+  const text =
+    "Team, I know that times are tough! Product " +
+    "sales have been disappointing for the past three " +
+    "quarters. We have a competitive product, but we " +
+    "need to do a better job of selling it!";
 
-//   let email = "";
-//   try {
-//     return cors(req, res, () => {
-//       // Authentication requests are POSTed, other requests are forbidden
-//       if (req.method !== "POST") {
-//         return handleResponse(email, 403, null);
-//       }
-//       //email = req.body.email;
-//       let user = req.body.user;
-//       console.log(req.body);
-//       email = req.body.email;
-//       if (!email) {
-//         return handleResponse(email, 400, null);
-//       }
-//       const password = req.body.password;
-//       if (!password) {
-//         return handleResponse(email, 400, null);
-//       }
-//       return axios
-//         .post(
-//           `https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${apiKey}`,
-//           {
-//             email,
-//             password,
-//             returnSecureToken: true
-//           }
-//         )
-//         .then(async resp => {
-//           //this body has body.uid and body.idToken
-//           try {
-//             await db.doc(`users/${resp.data.localId}`).set(user); //sets up new user after sign up..!!
-//           } catch (e) {
-//             console.log(e);
-//           }
-//           return handleResponse(email, 200, resp.data);
-//         })
-//         .catch(err => {
-//           return handleResponse(email, 401, null); // Invalid username/password
-//         });
-//     });
-//   } catch (error) {
-//     return handleError(email, error);
-//   }
-// });
+  const toneParams = {
+    tone_input: { text: text },
+    content_type: "application/json"
+  };
 
-// exports.loginWithEmailAndPwd = functions.https.onRequest((req, res) => {
-//   const handleError = (username, error) => {
-//     console.error({ User: username }, error);
-//     return res.sendStatus(500);
-//   };
+  toneAnalyzer
+    .tone(toneParams)
+    .then(toneAnalysis => {
+      console.log(JSON.stringify(toneAnalysis, null, 2));
+    })
+    .catch(err => {
+      console.log("error:", err);
+    });
+});
 
-//   const handleResponse = (username, status, body) => {
-//     console.log(
-//       { User: username },
-//       {
-//         Response: {
-//           Status: status,
-//           Body: body
-//         }
-//       }
-//     );
-//     if (body) {
-//       return res.status(200).json(body);
-//     }
-//     return res.sendStatus(status);
-//   };
+//Aylien text sdk
+exports.getAylienViaSDK = functions.https.onRequest(async (req, res) => {
+  let text = req.body.text;
+  if (text != null) {
+    var textapi = new AYLIENTextAPI({
+      application_id: AYLIEN_ID,
+      application_key: AYLIEN_KEY
+    });
+    await textapi.sentiment(
+      {
+        text: "John is a very good football player!"
+      },
+      function(error, response) {
+        if (error === null) {
+          res.status(200).send({ message: "OK", response: response });
+        } else {
+          res.status(401).send({ message: "Failed", response: response });
+        }
+      }
+    );
+  } else {
+    res.status(400).send("Text EMpty");
+  }
+});
 
-//   let email = "";
-//   try {
-//     return cors(req, res, () => {
-//       // Authentication requests are POSTed, other requests are forbidden
-//       if (req.method !== "POST") {
-//         return handleResponse(email, 403, null);
-//       }
-//       console.log(req.body);
-//       email = req.body.email;
-//       if (!email) {
-//         return handleResponse(email, 400, null);
-//       }
-//       const password = req.body.password;
-//       if (!password) {
-//         return handleResponse(email, 400, null);
-//       }
+//Aylien End Point
+exports.getAylienEndPoint = functions.https.onRequest(async (req, res) => {
+  let text = req.body.text;
+  if (text != null) {
+    var header = {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X- AYLIEN - TextAPI - Application - Key": AYLIEN_KEY,
+      "X-AYLIEN-TextAPI-Application-ID": AYLIEN_ID
+    };
+    var requestData = {
+      text: text
+    };
+    await axios
+      .post(url, qs.stringify(requestData), header)
+      .then(response => {
+        // Do somthing
+        res.status(200).send({ message: "OK", response: response });
+      })
+      .catch(err => {
+        // Do somthing
+        res.status(401).send({ message: "Failed", response: err });
+      });
+  } else {
+    res.status(400).send("Text Empty");
+  }
+});
 
-//       return axios
-//         .post(
-//           `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=${apiKey}`,
-//           {
-//             email,
-//             password,
-//             returnSecureToken: true
-//           }
-//         )
-//         .then(resp => {
-//           return handleResponse(email, 200, resp.data);
-//         })
-//         .catch(err => {
-//           return handleResponse(email, 401, null); // Invalid username/password
-//         });
-//     });
-//   } catch (error) {
-//     return handleError(email, error);
-//   }
-// });
+exports.getAylienPostman = functions.https.onRequest(
+  async (request, response) => {
+    var options = {
+      method: "POST",
+      hostname: ["api", "aylien", "com"],
+      path: ["api", "v1", "sentiment"],
+      headers: {
+        "X-AYLIEN-TextAPI-Application-Key": "ffb4388d3af9f69af601847fd96d3431",
+        "X-AYLIEN-TextAPI-Application-ID": "4b14364f",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "PostmanRuntime/7.11.0",
+        Accept: "*/*",
+        "Cache-Control": "no-cache",
+        "Postman-Token":
+          "c618f189-5ded-4cd0-b699-30889a33d5af,038d4bfe-d214-489f-846b-9ec43ab8ec70",
+        Host: "api.aylien.com",
+        "accept-encoding": "gzip, deflate",
+        "content-length": "28",
+        Connection: "keep-alive",
+        "cache-control": "no-cache"
+      }
+    };
 
-// exports.checkUserName = functions.https.onRequest((req, res) => {
-//   const handleError = (username, error) => {
-//     console.error({ User: username }, error);
-//     return res.sendStatus(500);
-//   };
+    var req = http.request(options, function(res) {
+      var chunks = [];
 
-//   const handleResponse = (username, status, body) => {
-//     console.log(
-//       { User: username },
-//       {
-//         Response: {
-//           Status: status,
-//           Body: body
-//         }
-//       }
-//     );
-//     if (body) {
-//       return res.status(200).json(body);
-//     }
-//     return res.sendStatus(status);
-//   };
+      res.on("data", function(chunk) {
+        chunks.push(chunk);
+      });
 
-//   let username = "";
-//   try {
-//     username = req.body.username;
-//     if (username) {
-//       const userDoc = db.doc(`usernames/${username}`).get();
-//       if (userDoc.exists) {
-//         handleResponse(username, 200, { exist: true });
-//       } else {
-//         handleResponse(username, 200, { exist: false });
-//       }
-//     }
-//     handleResponse(username, 400, null);
-//   } catch (error) {
-//     return handleError(username, error);
-//   }
-// });
-// const handleSuccess = (message, res) => {
-//   res.send({ message: message }).status(200);
-// };
-// const handleError = (message, res) => {
-//   res.send({ message: message }).status(400);
-// };
+      res.on("end", function() {
+        var body = Buffer.concat(chunks);
+        response.status(200).send(body);
+        console.log(body.toString());
+      });
+    });
 
-// const validateFirebaseIdToken = async (req, res, next) => {
-//   console.log("Check if request is authorized with Firebase ID token");
-
-//   if (
-//     !req.headers.authorization ||
-//     !req.headers.authorization.startsWith("Bearer ")
-//   ) {
-//     console.error(
-//       "No Firebase ID token was passed as a Bearer token in the Authorization header.",
-//       "Make sure you authorize your request by providing the following HTTP header:",
-//       "Authorization: Bearer <Firebase ID Token>",
-//       'or by passing a "__session" cookie.'
-//     );
-//     res.status(403).send("Unauthorized");
-//     return;
-//   }
-
-//   let idToken;
-//   if (
-//     req.headers.authorization &&
-//     req.headers.authorization.startsWith("Bearer ")
-//   ) {
-//     console.log('Found "Authorization" header');
-//     // Read the ID Token from the Authorization header.
-//     idToken = req.headers.authorization.split("Bearer ")[1];
-//   } else {
-//     // No cookie
-//     console.error("please add id token to bearer");
-//     res.status(403).send("Unauthorized");
-//     return;
-//   }
-
-//   try {
-//     const decodedIdToken = await admin.auth().verifyIdToken(idToken);
-//     console.log("ID Token correctly decoded", decodedIdToken);
-//     req.user = decodedIdToken;
-//     next();
-//   } catch (error) {
-//     console.error("Error while verifying Firebase ID token:", error);
-//     res.status(403).send("Unauthorized");
-//     return;
-//   }
-// };
-
-// appExpress.use(cors);
-// appExpress.use(validateFirebaseIdToken);
-// appExpress.use(bodyParser.json()); // support json encoded bodies
-// appExpress.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
-// appExpress.get("/", (req, res) => {
-//   res.send("Hello World!");
-// });
-
-// //get user using  id token in bearer
-// appExpress.post("/getUser", async (req, res) => {
-//   try {
-//     console.log(req);
-//     const userDoc = await db.doc(`users/${req.user.uid}`).get();
-//     const userData = userDoc.exists && userDoc.data();
-//     if (!userData) {
-//       res.status(404).send("User not found");
-//       return;
-//     }
-//     var uid;
-//     if (req.body) {
-//       uid = req.body.uid;
-//     }
-//     // {
-//     //   "email": "guchaitsourav@gmail.com",
-//     //     "username": "sourav"
-//     // }
-//     res.status(200).send({
-//       user: { email: userData.email, username: userData.username, uid: uid }
-//     });
-//     return;
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send("Unknown error");
-//   }
-// });
-
-// appExpress.get("/chats", async (req, res) => {
-//   try {
-//     var chats = [];
-//     await db
-//       .collection("chats")
-//       .get()
-//       .then(snapshot => {
-//         snapshot.forEach(doc => {
-//           chats.push(doc.data());
-//           console.log(doc.id, "=>", doc.data());
-//         });
-//       });
-//     res.status(200).send(chats);
-//   } catch (err) {
-//     handleError("Failed ot fetch chats", res);
-//     console.error(err);
-//   }
-// });
-// appExpress.post("/chatPost", async (req, res) => {
-//   var body = req.body;
-//   if (body) {
-//     var time = req.body.chat.timeStamp;
-//     try {
-//       await db
-//         .collection("chats")
-//         .doc(time.toString())
-//         .set(req.body.chat);
-//       handleSuccess("Message Sent Successfully", res);
-//     } catch (err) {
-//       console.error(err);
-//       handleError("Failed to sent message", res);
-//     }
-//   }
-// });
-
-// exports.appExpress = functions.https.onRequest(appExpress);
+    req.write(qs.stringify({ text: "hello i am soitra" }));
+    req.end();
+  }
+);
+//Watson End Point
+exports.geWatsonViaEndPoint = functions.https.onRequest(async (req, res) => {});
