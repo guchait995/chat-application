@@ -20,6 +20,7 @@ const AYLIEN_URL = "https://api.aylien.com/api/v1/sentiment";
 const WATSON_URL = "https://gateway-lon.watsonplatform.net/tone-analyzer/api";
 const WATSON_KEY = "1PQRkOcENisZl_9OCoCLv8YQNLvzxHkBquY7W4p3CiYU";
 const WATSON_VERSION = "2017-09-21";
+
 exports.initListener = functions.database
   .ref("/status/")
   .onUpdate((change, context) => {
