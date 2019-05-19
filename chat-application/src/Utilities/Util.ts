@@ -61,3 +61,9 @@ export const getRandomColor = () => {
     USERNAME_COLORS[(Math.random() * 1000000) % USERNAME_COLORS.length];
   return color;
 };
+
+export const handleKeyDown = event => {
+  if (event.key === "Enter") {
+    return true;
+  } else return false;
+};

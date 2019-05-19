@@ -1,6 +1,18 @@
 import React, { useContext, useState, useEffect } from "react";
 import LoginContext from "../../Contexts/LoginContext";
+import {
+  QUESTION_EMOJI_TEXT,
+  HAPPY_EMOJI_TEXT,
+  SMILE_EMOJI_TEXT,
+  SAD_EMOJI_TEXT,
+  CONFUSED_EMOJI_TEXT
+} from "../../AppConstants";
 
+import HappyEmoji from "../emoticons/happy.png";
+import QuestionIcon from "../emoticons/info.svg";
+import SmileEmoji from "../emoticons/smiling.svg";
+import SadEmoji from "../emoticons/sad.svg";
+import ConfusedEmoji from "../emoticons/confused.svg";
 export default function Chat(props) {
   const { name, message, timeStamp, color } = props.chat;
 
@@ -12,13 +24,13 @@ export default function Chat(props) {
   } = useContext<any>(LoginContext);
   const [chatRef, setChatRef] = useState<HTMLDivElement>();
   useEffect(() => {
-    console.log(loginInfo.userDetails);
     if (index === totalChats - 1) {
       if (chatRef) {
         chatRef.scrollIntoView({ behavior: "smooth" });
       }
     }
   }, [chatRef]);
+
   return (
     <div
       className="chat"
@@ -36,7 +48,7 @@ export default function Chat(props) {
         <div className="chat-sender-name" style={{ color }}>
           {name}
         </div>
-        <div className="chat-message">{message}</div>
+        <div className="chat-message">{filterMessage(message)}</div>
         <div className="timeStamp">{formatAMPM(date)}</div>
       </div>
     </div>
@@ -52,3 +64,20 @@ function formatAMPM(date) {
   var strTime = hours + ":" + minutes + " " + ampm;
   return strTime;
 }
+const filterMessage = message => {
+  if (message) {
+    if (message === QUESTION_EMOJI_TEXT) {
+      return <img src={QuestionIcon} className="text-emoji" />;
+    } else if (message === HAPPY_EMOJI_TEXT) {
+      return <img src={HappyEmoji} className="text-emoji" />;
+    } else if (message === SMILE_EMOJI_TEXT) {
+      return <img src={SmileEmoji} className="text-emoji" />;
+    } else if (message === SAD_EMOJI_TEXT) {
+      return <img src={SadEmoji} className="text-emoji" />;
+    } else if (message === CONFUSED_EMOJI_TEXT) {
+      return <img src={ConfusedEmoji} className="text-emoji" />;
+    } else {
+      return message;
+    }
+  }
+};
