@@ -22,8 +22,7 @@ export const USERNAME_COLORS = [
 
 //URL
 // export const EMOJI_URL = "http://localhost:8000/getEmoji";
-export const EMOJI_URL =
-  "https://fathomless-beach-77124.herokuapp.com/getEmoji";
+export const EMOJI_URL = "https://radiant-dusk-10344.herokuapp.com/getEmoji";
 export const HAPPY_EMOJI_CODE = 1000;
 export const SMILE_EMOJI_CODE = 1001;
 export const SAD_EMOJI_CODE = 1002;

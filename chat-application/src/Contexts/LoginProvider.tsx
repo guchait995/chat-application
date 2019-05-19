@@ -55,22 +55,37 @@ export default function LoginProvider(props) {
     getAuth()
       .createUserWithEmailAndPassword(email, password)
       .then(firebaseUser => {
-        var color = getRandomColor();
-        var user = firebaseUser.user;
+        let color = getRandomColor();
+        let user = firebaseUser.user;
+        console.log(color);
+        console.log(user);
         if (user) {
           getDb()
             .collection("usernames")
             .doc(username)
-            .set({ email: email });
-          getDb()
-            .collection("users")
-            .doc(user.uid)
-            .set({
-              email: email,
-              username: username,
-              state: "online",
-              last_changed: 1558097573186,
-              color: color
+            .set({ email: email })
+            .then(value => {
+              console.log("created username");
+              if (user)
+                getDb()
+                  .collection("users")
+                  .doc(user.uid)
+                  .set({
+                    email: email,
+                    username: username,
+                    state: "online",
+                    last_changed: 1558097573186,
+                    color: color
+                  })
+                  .then(res => {
+                    console.log("created user details");
+                  })
+                  .catch(err => {
+                    console.error(err);
+                  });
+            })
+            .catch(err => {
+              console.error(err);
             });
         }
       })

@@ -14,13 +14,11 @@ export const getEmoji = async (text, setEmotion) => {
   if (text) {
     await axios.post(EMOJI_URL, { textMessage: text }).then(res => {
       var data = res.data;
-      console.log(data);
-      console.log(text);
 
       if (data && data.message === "OK") {
         var sentiment = data.response;
-        console.log(sentiment);
-        console.log(sentiment.polarity);
+        // console.log(sentiment);
+        // console.log(sentiment.polarity);
         if (
           sentiment.polarity === "positive" &&
           sentiment.polarity_confidence > 0.7

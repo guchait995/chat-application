@@ -49,25 +49,33 @@ export async function isUserExist(username) {
 
 //returns get connection status by uid
 export function getConnectionStatus(uid) {
-  var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
-  firebase
-    .database()
-    .ref(".info/connected")
-    .on("value", function(snapshot) {
-      // If we're not currently connected, don't do anything.
-      if (snapshot.val() == false) {
-        return 0;
-      }
-      //if we are connected
-      userStatusDatabaseRef
-        .onDisconnect()
-        .set(isOfflineForDatabase)
-        .then(function() {
-          userStatusDatabaseRef.set(isOnlineForDatabase).then(() => {
-            return 1;
+  if (uid) {
+    getDb()
+      .collection("users")
+      .doc(uid)
+      .get()
+      .then(res => {
+        var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
+        firebase
+          .database()
+          .ref(".info/connected")
+          .on("value", function(snapshot) {
+            // If we're not currently connected, don't do anything.
+            if (snapshot.val() == false) {
+              return 0;
+            }
+            //if we are connected
+            userStatusDatabaseRef
+              .onDisconnect()
+              .set(isOfflineForDatabase)
+              .then(function() {
+                userStatusDatabaseRef.set(isOnlineForDatabase).then(() => {
+                  return 1;
+                });
+              });
           });
-        });
-    });
+      });
+  }
 }
 
 //setsonline offline state change

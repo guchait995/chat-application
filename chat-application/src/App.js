@@ -51,6 +51,7 @@ function LoginWrapper(props) {
     loginInfo.uid != null
   ) {
     //mainpage
+    console.log(loginInfo.userDetails);
     return <Chats />;
   }
   if (loginInfo.uid != null) {

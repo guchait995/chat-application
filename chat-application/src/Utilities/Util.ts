@@ -57,9 +57,8 @@ export const fromatTimeStamp = time => {
 };
 
 export const getRandomColor = () => {
-  var color =
-    USERNAME_COLORS[(Math.random() * 1000000) % USERNAME_COLORS.length];
-  return color;
+  var rand: number = roundTo(Math.random(), 2);
+  return USERNAME_COLORS[(rand * 1000000) % USERNAME_COLORS.length];
 };
 
 export const handleKeyDown = event => {
@@ -67,3 +66,14 @@ export const handleKeyDown = event => {
     return true;
   } else return false;
 };
+
+function roundTo(n, digits) {
+  if (digits === undefined) {
+    digits = 0;
+  }
+
+  var multiplicator = Math.pow(10, digits);
+  n = parseFloat((n * multiplicator).toFixed(11));
+  var test = Math.round(n) / multiplicator;
+  return +test.toFixed(digits);
+}

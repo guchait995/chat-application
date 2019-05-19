@@ -42,9 +42,30 @@ exports.initListener = functions.database
               if (key) {
                 db.collection("users")
                   .doc(key)
-                  .set(data, { merge: true })
-                  .then(doc => {
-                    console.log(doc);
+                  .get()
+                  .then(docSnapshot => {
+                    var data = docSnapshot.data();
+                    console.log(data);
+                    if (data && data.username != null && data.email != null) {
+                      console.log(
+                        "setting docs to current time stamp to uid:" + key
+                      );
+                      db.collection("users")
+                        .doc(key)
+                        .set({
+                          email: data.email,
+                          username: data.username,
+                          color: data.color,
+                          last_changed: dataNew.val().last_changed,
+                          state: dataNew.val().state
+                        })
+                        .then(doc => {
+                          console.log("successfully written" + doc);
+                        })
+                        .catch(err => {
+                          console.error(err);
+                        });
+                    }
                   })
                   .catch(err => {
                     console.error(err);
@@ -59,126 +80,49 @@ exports.initListener = functions.database
     });
   });
 
-//ibm watson tone analyser
-exports.geWatsonViaSDK = functions.https.onRequest((req, res) => {
-  const toneAnalyzer = new ToneAnalyzerV3({
-    version: WATSON_VERSION,
-    iam_apikey: WATSON_KEY
-  });
-
-  const text =
-    "Team, I know that times are tough! Product " +
-    "sales have been disappointing for the past three " +
-    "quarters. We have a competitive product, but we " +
-    "need to do a better job of selling it!";
-
-  const toneParams = {
-    tone_input: { text: text },
-    content_type: "application/json"
-  };
-
-  toneAnalyzer
-    .tone(toneParams)
-    .then(toneAnalysis => {
-      console.log(JSON.stringify(toneAnalysis, null, 2));
+exports.authListner = functions.auth.user().onDelete(firebaseUser => {
+  const email = firebaseUser.email;
+  const uid = firebaseUser.uid;
+  const providerData = firebaseUser.providerData;
+  console.log("deleting user " + email);
+  let username = "";
+  db.collection("users")
+    .doc(uid)
+    .get()
+    .then(docSnapshot => {
+      const data = docSnapshot.data();
+      console.log(data);
+      username = data.username;
+      console.log("deleting username " + username);
+      db.collection("usernames")
+        .doc(username)
+        .delete()
+        .then(fire => {
+          console.log("deleting from users " + username);
+          db.collection("users")
+            .doc(uid)
+            .delete()
+            .then(value => {
+              console.log("user deleted");
+              rdb
+                .ref("/status/")
+                .remove(uid)
+                .then(res => {
+                  console.log("user deleted from rdb");
+                })
+                .catch(err => {
+                  console.error("failed to delte from rdb");
+                });
+            })
+            .catch(err => {
+              console.error("user deleted." + err);
+            });
+        })
+        .catch(err => {
+          console.error("deleting from users." + err);
+        });
     })
     .catch(err => {
-      console.log("error:", err);
+      console.error("usernames." + err);
     });
 });
-
-//Aylien text sdk
-exports.getAylienViaSDK = functions.https.onRequest(async (req, res) => {
-  let text = req.body.text;
-  if (text != null) {
-    var textapi = new AYLIENTextAPI({
-      application_id: AYLIEN_ID,
-      application_key: AYLIEN_KEY
-    });
-    await textapi.sentiment(
-      {
-        text: "John is a very good football player!"
-      },
-      function(error, response) {
-        if (error === null) {
-          res.status(200).send({ message: "OK", response: response });
-        } else {
-          res.status(401).send({ message: "Failed", response: response });
-        }
-      }
-    );
-  } else {
-    res.status(400).send("Text EMpty");
-  }
-});
-
-//Aylien End Point
-exports.getAylienEndPoint = functions.https.onRequest(async (req, res) => {
-  let text = req.body.text;
-  if (text != null) {
-    var header = {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "X- AYLIEN - TextAPI - Application - Key": AYLIEN_KEY,
-      "X-AYLIEN-TextAPI-Application-ID": AYLIEN_ID
-    };
-    var requestData = {
-      text: text
-    };
-    await axios
-      .post(url, qs.stringify(requestData), header)
-      .then(response => {
-        // Do somthing
-        res.status(200).send({ message: "OK", response: response });
-      })
-      .catch(err => {
-        // Do somthing
-        res.status(401).send({ message: "Failed", response: err });
-      });
-  } else {
-    res.status(400).send("Text Empty");
-  }
-});
-
-exports.getAylienPostman = functions.https.onRequest(
-  async (request, response) => {
-    var options = {
-      method: "POST",
-      hostname: ["api", "aylien", "com"],
-      path: ["api", "v1", "sentiment"],
-      headers: {
-        "X-AYLIEN-TextAPI-Application-Key": "ffb4388d3af9f69af601847fd96d3431",
-        "X-AYLIEN-TextAPI-Application-ID": "4b14364f",
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": "PostmanRuntime/7.11.0",
-        Accept: "*/*",
-        "Cache-Control": "no-cache",
-        "Postman-Token":
-          "c618f189-5ded-4cd0-b699-30889a33d5af,038d4bfe-d214-489f-846b-9ec43ab8ec70",
-        Host: "api.aylien.com",
-        "accept-encoding": "gzip, deflate",
-        "content-length": "28",
-        Connection: "keep-alive",
-        "cache-control": "no-cache"
-      }
-    };
-
-    var req = http.request(options, function(res) {
-      var chunks = [];
-
-      res.on("data", function(chunk) {
-        chunks.push(chunk);
-      });
-
-      res.on("end", function() {
-        var body = Buffer.concat(chunks);
-        response.status(200).send(body);
-        console.log(body.toString());
-      });
-    });
-
-    req.write(qs.stringify({ text: "hello i am soitra" }));
-    req.end();
-  }
-);
-//Watson End Point
-exports.geWatsonViaEndPoint = functions.https.onRequest(async (req, res) => {});
