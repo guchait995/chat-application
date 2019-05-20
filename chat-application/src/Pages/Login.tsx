@@ -9,7 +9,7 @@ import axios from "axios";
 import LoginContext from "../Contexts/LoginContext";
 import Header from "../Layout/Header";
 import Signup from "./Signup";
-import { InputAdornment, IconButton } from "@material-ui/core";
+import { InputAdornment, IconButton, FormControl } from "@material-ui/core";
 
 export default function Login() {
   const [email, setEmail] = useState();
@@ -39,29 +39,30 @@ export default function Login() {
               margin="normal"
               variant="outlined"
             />
-            <TextField
-              label="Password"
-              fullWidth
-              type="password"
-              onChange={value => {
-                setPassword(value.currentTarget.value);
-              }}
-              variant="outlined"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="Toggle password visibility"
-                      onClick={() => {
-                        setShowPassword(!showPassword);
-                      }}
-                    >
-                      {!showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }}
-            />
+            <FormControl fullWidth>
+              <TextField
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                onChange={value => {
+                  setPassword(value.currentTarget.value);
+                }}
+                variant="outlined"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="Toggle password visibility"
+                        onClick={() => {
+                          setShowPassword(!showPassword);
+                        }}
+                      >
+                        {!showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            </FormControl>
             <Button
               variant="contained"
               fullWidth
