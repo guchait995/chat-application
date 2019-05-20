@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
-
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { Redirect, NavLink, HashRouter, Router } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import icon from "../Components/emoticons/chat-app-icon.png";
@@ -8,10 +9,12 @@ import axios from "axios";
 import LoginContext from "../Contexts/LoginContext";
 import Header from "../Layout/Header";
 import Signup from "./Signup";
+import { InputAdornment, IconButton } from "@material-ui/core";
 
 export default function Login() {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isSignUp, setIsSignUp] = useState<boolean>(false);
   const {
     state: { loginInfo },
@@ -44,6 +47,20 @@ export default function Login() {
                 setPassword(value.currentTarget.value);
               }}
               variant="outlined"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="Toggle password visibility"
+                      onClick={() => {
+                        setShowPassword(!showPassword);
+                      }}
+                    >
+                      {!showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
             />
             <Button
               variant="contained"
