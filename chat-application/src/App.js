@@ -45,16 +45,12 @@ function LoginWrapper(props) {
   if (loginInfo.isLoggedIn == false && loginInfo.uid == null) {
     return <Login />;
   }
-  if (
-    loginInfo.isLoggedIn &&
-    loginInfo.userDetails != null &&
-    loginInfo.uid != null
-  ) {
+  if (loginInfo.isLoggedIn && loginInfo.userDetails && loginInfo.uid != null) {
     //mainpage
     console.log(loginInfo.userDetails);
     return <Chats />;
   }
-  if (loginInfo.uid != null) {
+  if (loginInfo.isLoggedIn && loginInfo.uid != null && !loginInfo.userDetails) {
     getuserDetails(loginInfo.uid);
   }
   return <LoadingPage />;

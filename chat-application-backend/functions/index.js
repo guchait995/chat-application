@@ -105,9 +105,8 @@ exports.authListner = functions.auth.user().onDelete(firebaseUser => {
             .then(value => {
               console.log("user deleted");
               rdb
-                .ref("/status/")
-                .remove(uid)
-                .then(res => {
+                .ref("/status/" + uid)
+                .remove(res => {
                   console.log("user deleted from rdb");
                 })
                 .catch(err => {
