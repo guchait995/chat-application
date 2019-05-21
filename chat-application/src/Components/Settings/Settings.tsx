@@ -4,12 +4,19 @@ import Switch from "@material-ui/core/Switch";
 import { makeStyles } from "@material-ui/styles";
 import ColorChooser from "./ColorChooser";
 import LoginContext from "../../Contexts/LoginContext";
-import { hideOffline } from "../../Firebase/FirebaseDao";
+import { toggleOffline } from "../../Firebase/FirebaseDao";
 export default function Settings(props) {
   const { userDetails, uid } = props;
-  const [offline, setOffline] = useState<boolean>(
-    userDetails.goOffline != null ? userDetails.goOffline : false
+  const [isSwitchOn, setIsSwitchOn] = useState<boolean | null>(
+    userDetails.goOffline
   );
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+  const handleSwitch = switchOn => {
+    if (uid) {
+      setIsSwitchOn(switchOn);
+      toggleOffline(switchOn, uid);
+    }
+  };
   const useStyles = makeStyles(theme => ({
     colorSwitchBase: {
       color: "#663100",
@@ -39,7 +46,7 @@ export default function Settings(props) {
             left={"Go Offline"}
             right={
               <Switch
-                checked={offline}
+                checked={isSwitchOn === null ? false : isSwitchOn}
                 classes={{
                   switchBase: classes.colorSwitchBase,
                   checked: classes.colorChecked,
@@ -47,8 +54,7 @@ export default function Settings(props) {
                 }}
                 value="offlineSwitch"
                 onChange={e => {
-                  setOffline(e.currentTarget.checked);
-                  hideOffline(e.currentTarget.checked, uid);
+                  handleSwitch(e.currentTarget.checked);
                 }}
               />
             }

@@ -35,24 +35,25 @@ exports.initListener = functions.database
         ) {
           //data updated
           try {
-            var data = dataNew.val();
-            var key = dataNew.key;
+            var data = dataNew.val(); //this has last_changed and state
+            var uid = dataNew.key; //uid
             if (data) {
               console.log(data.last_changed + " , " + data.state);
-              if (key) {
+              if (uid) {
                 db.collection("users")
-                  .doc(key)
+                  .doc(uid)
                   .get()
                   .then(docSnapshot => {
                     var data = docSnapshot.data();
                     console.log(data);
                     if (data && data.username != null && data.email != null) {
                       console.log(
-                        "setting docs to current time stamp to uid:" + key
+                        "setting docs to current time stamp to uid:" + uid
                       );
-                      var offline = dataNew.val().goOffline;
+                      var offline = data.goOffline;
+                      console.log("offline=" + offline);
                       db.collection("users")
-                        .doc(key)
+                        .doc(uid)
                         .set({
                           email: data.email,
                           username: data.username,

@@ -54,22 +54,25 @@ export async function isUserExist(username) {
 
 //returns get connection status by uid
 export function getConnectionStatus(uid, userDetails) {
-  if (uid && !userDetails.goOffline) {
-    getDb()
-      .collection("users")
-      .doc(uid)
-      .get()
-      .then(res => {
-        var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
-        firebase
-          .database()
-          .ref(".info/connected")
-          .on("value", function(snapshot) {
-            // If we're not currently connected, don't do anything.
-            if (snapshot.val() == false) {
-              return 0;
-            }
-            //if we are connected
+  var goOffline = userDetails.goOffline;
+  getDb()
+    .collection("users")
+    .doc(uid)
+    .get()
+    .then(res => {
+      var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
+      firebase
+        .database()
+        .ref(".info/connected")
+        .on("value", function(snapshot) {
+          // If we're not currently connected, don't do anything.
+          if (snapshot.val() == false) {
+            return 0;
+          }
+          //if we are connected
+          if (!userDetails.goOffline) {
+            // if gooOffline is true user has went offline and we
+            // shouldnt show or turn him online
             userStatusDatabaseRef
               .onDisconnect()
               .set(isOfflineForDatabase)
@@ -78,9 +81,9 @@ export function getConnectionStatus(uid, userDetails) {
                   return 1;
                 });
               });
-          });
-      });
-  }
+          }
+        });
+    });
 }
 
 //setsonline offline state change
@@ -102,23 +105,29 @@ export const setOnline = uid => {
   userStatusDatabaseRef.set(isOnlineForDatabase);
 };
 //toggle show Offline and Online
-export const hideOffline = (isOffline, uid) => {
-  if (isOffline) {
-    setOffline(uid);
-  } else {
-    getConnectionStatus(uid, { goOffline: isOffline });
-  }
+export const toggleOffline = (isSwitchedOn, uid) => {
   if (uid) {
-    setOffline(uid);
     getDb()
       .collection("users")
       .doc(uid)
-      .update({ goOffline: isOffline })
+      .update({ goOffline: isSwitchedOn })
       .then(res => {
+        if (isSwitchedOn) {
+          setOffline(uid);
+        } else {
+          // setOnline(uid);
+          var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
+          userStatusDatabaseRef
+            .onDisconnect()
+            .set(isOfflineForDatabase)
+            .then(function() {
+              userStatusDatabaseRef.set(isOnlineForDatabase).then(() => {});
+            });
+        }
         openSnackbar({
           message: format(
             OFFLINE_TOGGLE_MESSAGE,
-            isOffline ? "offline" : "online"
+            isSwitchedOn ? "offline" : "online"
           ),
           timeout: SNACKBAR_TIMEOUT
         });
@@ -126,7 +135,7 @@ export const hideOffline = (isOffline, uid) => {
   }
 };
 
-//
+//sets on backend color
 export const setColorBackend = (color, uid) => {
   if (uid)
     getDb()

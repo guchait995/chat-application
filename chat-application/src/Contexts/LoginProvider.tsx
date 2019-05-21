@@ -105,6 +105,7 @@ export default function LoginProvider(props) {
       .doc(uid)
       .onSnapshot(
         docSnap => {
+          console.log("user details updated");
           var data = docSnap.data();
           if (data) {
             var username = data.username;
