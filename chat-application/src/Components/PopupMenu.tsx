@@ -1,6 +1,7 @@
 import React, { useEffect, useContext, useState } from "react";
 import { Popover, Button } from "@material-ui/core";
 import LoginContext from "../Contexts/LoginContext";
+import SettingsIcon from "./emoticons/settings.svg";
 import {
   getConnectionStatus,
   getDb,
@@ -10,11 +11,12 @@ import {
 import { getLastSeen } from "../Utilities/Util";
 import { NavLink } from "react-router-dom";
 import Login from "../Pages/Login";
+import Settings from "./Settings/Settings";
+import { openModal } from "./CustomBootDialog";
 export default function PopupMenu(props) {
-  const { show, anchorEl } = props;
+  const { show, anchorEl, userDetails, uid } = props;
   const {
-    state: { loginInfo },
-    actions: { loginWithEmailPassword, verifyToken }
+    state: { loginInfo }
   } = useContext<any>(LoginContext);
   //checks whether users online
   const [allUsers, setAllUsers] = useState<any[]>([]);
@@ -29,7 +31,7 @@ export default function PopupMenu(props) {
           var data = documentSnapshot.data();
           if (data) {
             if (
-              loginInfo.userDetails.username != data.username &&
+              userDetails.username != data.username &&
               data.username != null &&
               data.last_changed > 10000
             )
@@ -46,7 +48,7 @@ export default function PopupMenu(props) {
     }
   }, []);
   const handleLogout = () => {
-    setOffline(loginInfo.uid);
+    setOffline(uid);
     getAuth().signOut();
   };
   // const AllRegUsers = getAllUsers();
@@ -55,22 +57,21 @@ export default function PopupMenu(props) {
       open={show}
       anchorOrigin={{
         vertical: "top",
-        horizontal: "center"
+        horizontal: "right"
       }}
       transformOrigin={{
         vertical: "top",
-        horizontal: "left"
+        horizontal: "right"
       }}
       anchorEl={anchorEl}
-      anchorPosition={{ top: 10, left: 10 }}
       onClose={() => {
         props.onClose();
       }}
     >
       <div className="popupmenu">
         <div className="username-container">
-          <h3 className="popupmenu-username">
-            {loginInfo.userDetails.username}
+          <h3 className="popupmenu-username word-wrap-text">
+            {userDetails.username}
           </h3>
           <Button
             onClick={() => {
@@ -82,7 +83,22 @@ export default function PopupMenu(props) {
           </Button>
         </div>
         <div className="line-break" />
-        <h5>{loginInfo.userDetails.email}</h5>
+        <div className="email-container">
+          <h5 className="word-wrap-text">{userDetails.email}</h5>
+
+          <img
+            className="settings-icon"
+            src={SettingsIcon}
+            onClick={() => {
+              openModal(
+                <Settings
+                  userDetails={loginInfo.userDetails}
+                  uid={loginInfo.uid}
+                />
+              );
+            }}
+          />
+        </div>
         <div className="online-user">USERS</div>
         <div className="line-break" />
         <div className="online-usernames">

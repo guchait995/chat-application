@@ -249,7 +249,6 @@ h2 {
   padding-right: 10px;
 }
 .email-container > img {
-  margin-right: 10px;
   margin-left: auto;
   vertical-align: top;
   text-align: right;
@@ -287,8 +286,11 @@ h2 {
   border-radius: 5px;
   padding: 2px;
   border-style: solid;
-  margin-right: 5px;
   margin-left: 10px;
+}
+.word-wrap-text {
+  word-wrap: break-word;
+  max-width: 200px;
 }
 .popupmenu > .online-user {
   font-size: 12px;
@@ -350,7 +352,6 @@ h2 {
 }
 .username-container {
   display: flex;
-  min-height: 15px;
 }
 .left {
   float: left;

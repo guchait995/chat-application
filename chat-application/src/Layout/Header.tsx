@@ -27,6 +27,8 @@ export default function Header() {
               <PopupMenu
                 show={open}
                 anchorEl={anchorEl}
+                userDetails={loginInfo.userDetails}
+                uid={loginInfo.uid}
                 onClose={() => {
                   setOpen(false);
                 }}
