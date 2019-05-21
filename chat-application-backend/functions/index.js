@@ -99,7 +99,7 @@ exports.authListner = functions.auth.user().onDelete(firebaseUser => {
       console.log("deleting username " + username);
       db.collection("usernames")
         .doc(username)
-        .delete()
+        .delete(true)
         .then(fire => {
           console.log("deleting from users " + username);
           db.collection("users")
@@ -109,7 +109,7 @@ exports.authListner = functions.auth.user().onDelete(firebaseUser => {
               console.log("user deleted");
               rdb
                 .ref("/status/" + uid)
-                .remove(res => {
+                .remove(a => {
                   console.log("user deleted from rdb");
                 })
                 .catch(err => {

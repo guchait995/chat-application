@@ -31,19 +31,20 @@ export default function PopupMenu(props) {
           var data = documentSnapshot.data();
           if (data) {
             if (
-              userDetails.username != data.username &&
-              data.username != null &&
-              data.last_changed > 10000
-            )
+              userDetails &&
+              userDetails.username &&
+              data.username &&
+              userDetails.username != data.username
+            ) {
               users.push(data);
+            }
           }
         });
         setAllUsers(users);
       });
   };
   useEffect(() => {
-    if (!isMounted) {
-      isMounted = true;
+    if (allUsers.length <= 0) {
       getAllUsers();
     }
   }, []);
@@ -85,7 +86,7 @@ export default function PopupMenu(props) {
         <div className="line-break" />
         <div className="email-container">
           <h5 className="word-wrap-text">{userDetails.email}</h5>
-
+          {/* <div className="horizontal-break"   /> */}
           <img
             className="settings-icon"
             src={SettingsIcon}
