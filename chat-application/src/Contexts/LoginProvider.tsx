@@ -75,7 +75,8 @@ export default function LoginProvider(props) {
                     username: username,
                     state: "online",
                     last_changed: 1558097573186,
-                    color: color
+                    color: color,
+                    goOffline: false
                   })
                   .then(res => {
                     console.log("created user details");
@@ -102,30 +103,33 @@ export default function LoginProvider(props) {
     getDb()
       .collection("users")
       .doc(uid)
-      .get()
-      .then(docSnap => {
-        var data = docSnap.data();
-        if (data) {
-          var username = data.username;
-          var email = data.email;
-          var last_changed = data.last_changed;
-          var state = data.state;
-          var color = data.color;
-        }
-        setLoginInfo({
-          ...loginInfo,
-          userDetails: {
-            username: username,
-            email: email,
-            last_changed: last_changed,
-            state: state,
-            color: color
+      .onSnapshot(
+        docSnap => {
+          var data = docSnap.data();
+          if (data) {
+            var username = data.username;
+            var email = data.email;
+            var last_changed = data.last_changed;
+            var state = data.state;
+            var color = data.color;
+            var goOffline = data.goOffline;
           }
-        });
-      })
-      .catch(err => {
-        console.log(err);
-      });
+          setLoginInfo({
+            ...loginInfo,
+            userDetails: {
+              username: username,
+              email: email,
+              last_changed: last_changed,
+              state: state,
+              color: color,
+              goOffline: goOffline
+            }
+          });
+        },
+        err => {
+          console.error(err);
+        }
+      );
   };
   return (
     <LoginContext.Provider

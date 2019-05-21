@@ -10,6 +10,8 @@ export const MESSAGE_SENT_SUCCESSFULLY = "Message Sent Successfully";
 export const MESSAGE_SENT_FAILED = "Failed to sent message";
 export const EMOJI_UPDATES = "Sorry!! Working on updates on emoji detection";
 export const EMOJI_TEXT_EMPTY = "Empty Text Field";
+export const OFFLINE_TOGGLE_MESSAGE = "Successfully went %s";
+export const CHAT_COLOR_CHANGED = "Chat color changed";
 //chat username colors
 export const USERNAME_COLORS = [
   "#ff7b00",

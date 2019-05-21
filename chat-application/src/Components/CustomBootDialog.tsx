@@ -19,7 +19,7 @@ export default function CustomBootDialog() {
   }, []);
   return (
     <div>
-      <Modal open={open} onClose={handleClose}>
+      <Modal open={open} onClose={handleClose} disableAutoFocus={true}>
         <div className="modal-body">
           {element ? element : <div>This is empty div .</div>}
         </div>

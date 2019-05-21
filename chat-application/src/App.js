@@ -7,7 +7,7 @@ import LoginContext from "./Contexts/LoginContext";
 import Chats from "./Pages/Chats";
 import LoginProvider from "./Contexts/LoginProvider";
 import LoadingPage from "./Components/LoadingPage";
-import { getAuth, getConnectionStatus } from "./Firebase/FirebaseDao";
+import { getAuth } from "./Firebase/FirebaseDao";
 function App() {
   return (
     <div>

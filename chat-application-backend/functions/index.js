@@ -50,6 +50,7 @@ exports.initListener = functions.database
                       console.log(
                         "setting docs to current time stamp to uid:" + key
                       );
+                      var offline = dataNew.val().goOffline;
                       db.collection("users")
                         .doc(key)
                         .set({
@@ -57,7 +58,8 @@ exports.initListener = functions.database
                           username: data.username,
                           color: data.color,
                           last_changed: dataNew.val().last_changed,
-                          state: dataNew.val().state
+                          state: dataNew.val().state,
+                          goOffline: offline != null ? offline : false
                         })
                         .then(doc => {
                           console.log("successfully written" + doc);

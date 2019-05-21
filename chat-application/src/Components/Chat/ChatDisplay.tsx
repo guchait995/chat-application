@@ -13,7 +13,7 @@ export default function ChatDisplay() {
   useEffect(() => {
     if (isMounted) {
       isMounted = false;
-      getConnectionStatus(loginInfo.uid);
+      getConnectionStatus(loginInfo.uid, loginInfo.userDetails);
       var coll = getDb().collection("chats");
       var observer = coll.onSnapshot(
         collSnapshot => {
