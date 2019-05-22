@@ -1,4 +1,5 @@
 import { USERNAME_COLORS } from "../AppConstants";
+import { format } from "util";
 
 export const getLastSeen = time => {
   return calcDate(time);
@@ -77,3 +78,32 @@ function roundTo(n, digits) {
   var test = Math.round(n) / multiplicator;
   return +test.toFixed(digits);
 }
+const days = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday"
+];
+const months = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec"
+];
+export const getDate = millis => {
+  var dateObj: Date = new Date(millis);
+  var date = dateObj.getDate();
+  var dayOfWeek = dateObj.getDay();
+  var month = dateObj.getMonth();
+  return format("%s, %d %s", days[dayOfWeek], date, months[month]);
+};

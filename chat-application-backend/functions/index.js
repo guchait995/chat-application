@@ -87,7 +87,7 @@ exports.authListner = functions.auth.user().onDelete(firebaseUser => {
   const email = firebaseUser.email;
   const uid = firebaseUser.uid;
   const providerData = firebaseUser.providerData;
-  console.log("deleting user " + email);
+  console.log("deleting user " + uid + " email: " + email);
   let username = "";
   db.collection("users")
     .doc(uid)
@@ -96,32 +96,47 @@ exports.authListner = functions.auth.user().onDelete(firebaseUser => {
       const data = docSnapshot.data();
       console.log(data);
       username = data.username;
-      console.log("deleting username " + username);
-      db.collection("usernames")
-        .doc(username)
-        .delete(true)
-        .then(fire => {
-          console.log("deleting from users " + username);
-          db.collection("users")
-            .doc(uid)
-            .delete()
-            .then(value => {
-              console.log("user deleted");
-              rdb
-                .ref("/status/" + uid)
-                .remove(a => {
-                  console.log("user deleted from rdb");
-                })
-                .catch(err => {
-                  console.error("failed to delte from rdb");
-                });
-            })
-            .catch(err => {
-              console.error("user deleted." + err);
-            });
+      console.log(
+        "deleting username:" +
+          username +
+          "uid:" +
+          uid +
+          " email:" +
+          email +
+          " from RDB"
+      );
+      //Deleting from RDB
+      rdb
+        .ref("/status/" + uid)
+        .remove(a => {
+          console.log("user" + uid + " deleted from rdb");
         })
         .catch(err => {
-          console.error("deleting from users." + err);
+          console.error("failed to delte from rdb");
+        });
+      //deleting from uernames
+      db.collection("usernames")
+        .doc(username)
+        .delete()
+        .then(res => {
+          //deleted from usernames
+          console.log("username: " + username + "deleted from usernames.");
+        })
+        .catch(err => {
+          //failed to delete from usernames
+          console.error("deleting from usernames." + err);
+        });
+      //deleting from users
+      db.collection("users")
+        .doc(uid)
+        .delete()
+        .then(value => {
+          //deleted from users
+          console.log("user " + uid + "deleted from users");
+        })
+        .catch(err => {
+          //failed to delete from users
+          console.error("deleting from users failed." + err);
         });
     })
     .catch(err => {

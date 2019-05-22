@@ -3,8 +3,11 @@ import Chat from "./Chat";
 import axios from "axios";
 import LoginContext from "../../Contexts/LoginContext";
 import { getDb, getConnectionStatus } from "../../Firebase/FirebaseDao";
+import ChatModel from "../../Models/ChatModel";
+import { getDate } from "../../Utilities/Util";
 export default function ChatDisplay() {
-  const [messages, setMessages] = useState<any[]>([]);
+  var currentDate, prevDate;
+  const [messages, setMessages] = useState<ChatModel[]>([]);
   var isMounted = true;
   const {
     state: { loginInfo },
@@ -32,7 +35,34 @@ export default function ChatDisplay() {
     <div className="chats">
       <div className="chats-display">
         {messages.length > 0
-          ? messages.map((chat, key) => {
+          ? messages.map((chat: ChatModel, key) => {
+              if (messages[0] === chat) {
+                currentDate = getDate(chat.timeStamp);
+                prevDate = getDate(chat.timeStamp);
+              } else {
+                currentDate = getDate(chat.timeStamp);
+                if (currentDate != prevDate) {
+                  //new date arrived update previos date
+                  prevDate = currentDate;
+                  return (
+                    <div>
+                      <div className="chat-date-divider">
+                        <span>{prevDate}</span>
+                      </div>{" "}
+                      <div className="line-break" />
+                      <Chat
+                        chat={chat}
+                        index={key}
+                        totalChats={messages.length}
+                      />
+                    </div>
+                  );
+                  console.log(prevDate);
+                } else {
+                  //prevDate = currentDate;
+                }
+              }
+
               return (
                 <Chat chat={chat} index={key} totalChats={messages.length} />
               );

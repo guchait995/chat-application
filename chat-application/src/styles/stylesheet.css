@@ -185,6 +185,28 @@ h2 {
 
   border-left: 60px solid green;
 }
+.chat-date-divider {
+  text-align: center;
+  position: relative;
+  width: 100vw;
+}
+.chat-date-divider > span {
+  background-color: rgb(230, 230, 253);
+  font-size: 12px;
+  padding: 2px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 10px;
+}
+.chat-date-divider ::after {
+  content: "";
+  width: 80vw;
+  height: 1px;
+  background-color: black;
+}
 .chat-buble-own {
   min-width: 100px;
   max-width: calc(20% + 200px);
