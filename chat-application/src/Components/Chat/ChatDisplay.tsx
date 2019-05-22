@@ -48,7 +48,7 @@ export default function ChatDisplay() {
                     <div>
                       <div className="chat-date-divider">
                         <span>{prevDate}</span>
-                      </div>{" "}
+                      </div>
                       <div className="line-break" />
                       <Chat
                         chat={chat}

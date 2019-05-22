@@ -13,16 +13,16 @@ function calcDate(time) {
   var days = Math.floor(hour / 24);
   var months = Math.floor(days / 31);
   var years = Math.floor(months / 12);
-  if (years > 1) {
+  if (years > 0) {
     return years + " YRS";
   }
-  if (months > 1) {
+  if (months > 0) {
     return months + " MNS";
   }
-  if (days > 1) {
+  if (days > 0) {
     return days + " DYS";
   }
-  if (hour > 1) {
+  if (hour > 0) {
     return hour + " HRS";
   }
   if (min > 1) {
