@@ -70,28 +70,35 @@ export default function Signup(props) {
         )}
         {isUserNameConfirmed === false ? (
           <React.Fragment>
-            <TextField
-              label="Username"
-              fullWidth
-              error={userExist === null ? false : userExist}
-              name="username"
-              onChange={e => {
-                setUserName(e.currentTarget.value);
-              }}
-              margin="normal"
-              variant="outlined"
-            />
-            <Button
-              variant="contained"
-              fullWidth
-              type="submit"
-              color="primary"
-              onClick={() => {
+            <form
+              onSubmit={e => {
+                e.preventDefault();
                 checkUserExist();
               }}
             >
-              Check Username
-            </Button>
+              <TextField
+                label="Username"
+                fullWidth
+                error={userExist === null ? false : userExist}
+                name="username"
+                onChange={e => {
+                  setUserName(e.currentTarget.value);
+                }}
+                margin="normal"
+                variant="outlined"
+              />
+              <Button
+                variant="contained"
+                fullWidth
+                type="submit"
+                color="primary"
+                onClick={() => {
+                  checkUserExist();
+                }}
+              >
+                Check Username
+              </Button>
+            </form>
           </React.Fragment>
         ) : (
           <React.Fragment>
@@ -203,7 +210,6 @@ export default function Signup(props) {
                     : false
                   : false)
               }
-              type="submit"
               onClick={() => {
                 handleSignUp(email, password, userName);
               }}

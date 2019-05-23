@@ -109,39 +109,47 @@ export default function ChatInputLayout() {
   return (
     <div className="chat-input-layout">
       <div className="chat-input-box">
-        <TextField
-          id="standard-dense"
-          label="Type Your Message"
-          fullWidth
-          multiline
-          value={text}
-          className="chat-input-field"
-          margin="dense"
-          onKeyDown={e => {
-            if (handleKeyDown(e)) {
-              handleSend();
-            }
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            handleSend();
           }}
-          onChange={e => {
-            setText(e.currentTarget.value);
-          }}
-        />
-        <img
-          src={!isSearching ? emoji : Ripple}
-          className="emoji"
-          onClick={() => {
-            sendEmoji();
-          }}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          disabled={text.length == 0}
-          className="send-button"
-          onClick={handleSend}
         >
-          Send
-        </Button>
+          <TextField
+            id="standard-dense"
+            label="Type Your Message"
+            fullWidth
+            multiline
+            value={text}
+            className="chat-input-field"
+            margin="dense"
+            onKeyDown={e => {
+              if (handleKeyDown(e)) {
+                handleSend();
+              }
+            }}
+            onChange={e => {
+              setText(e.currentTarget.value);
+            }}
+          />
+          <img
+            src={!isSearching ? emoji : Ripple}
+            className="emoji"
+            onClick={() => {
+              sendEmoji();
+            }}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={text.length == 0}
+            type="submit"
+            className="send-button"
+            // onClick={handleSend}
+          >
+            Send
+          </Button>
+        </form>
       </div>
     </div>
   );

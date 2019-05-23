@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Modal from "@material-ui/core/Modal";
 
 let openModalFn;
+let CloseDialogFn;
 export default function CustomBootDialog() {
   const [open, setOpen] = useState<boolean>(false);
   const [element, setElement] = useState();
@@ -13,9 +14,13 @@ export default function CustomBootDialog() {
     setOpen(true);
     setElement(element);
   };
+  const close = () => {
+    setOpen(false);
+  };
 
   useEffect(() => {
     openModalFn = onOpenModal;
+    CloseDialogFn = close;
   }, []);
   return (
     <div>
@@ -30,4 +35,7 @@ export default function CustomBootDialog() {
 
 export function openModal(val?) {
   openModalFn({ ...val });
+}
+export function closeDialog() {
+  CloseDialogFn();
 }

@@ -12,7 +12,6 @@ export default function ColorChooser(props) {
   const [colors, setColors] = useState<string[]>([]);
   useEffect(() => {
     setColors(USERNAME_COLORS);
-    console.log(colors);
   }, []);
   function handleChange(selectedColor) {
     if (uid) {

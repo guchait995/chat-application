@@ -44,9 +44,8 @@ export const isValidEmail = (email: string | null) => {
 };
 
 export const fromatTimeStamp = time => {
-  console.log(time);
   var date: Date = new Date(time);
-  console.log(date);
+
   var hours = date.getHours();
   var minutes = date.getMinutes();
   var ampm = hours >= 12 ? "PM" : "AM";

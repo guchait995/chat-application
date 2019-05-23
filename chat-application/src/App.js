@@ -8,13 +8,30 @@ import Chats from "./Pages/Chats";
 import LoginProvider from "./Contexts/LoginProvider";
 import LoadingPage from "./Components/LoadingPage";
 import { getAuth } from "./Firebase/FirebaseDao";
+import CustomSnackbar from "./Components/CustomSnackbar";
+import CustomBootDialog from "./Components/CustomBootDialog";
+import { createMuiTheme, MuiThemeProvider } from "@material-ui/core";
 function App() {
+  const theme = createMuiTheme({
+    palette: {
+      primary: { main: "#232d99" }, // Purple and green play nicely together.
+      secondary: { main: "#c94b0c" },
+      green: { main: "#35cc53" }
+    },
+    typography: {
+      useNextVariants: true
+    }
+  });
   return (
     <div>
       <LoginProvider>
         <HashRouter>
-          <Route path="/" component={LoginWrapper} />
-          <PrivateRoute path="/chats" component={Chats} />
+          <MuiThemeProvider theme={theme}>
+            <CustomBootDialog />
+            <CustomSnackbar />
+            <Route path="/" component={LoginWrapper} />
+            <PrivateRoute path="/chats" component={Chats} />
+          </MuiThemeProvider>
         </HashRouter>
       </LoginProvider>
     </div>
@@ -41,17 +58,27 @@ function LoginWrapper(props) {
       });
     }
   }, []);
-
-  if (loginInfo.isLoggedIn == false && loginInfo.uid == null) {
+  if (loginInfo.isLoggedIn === false && loginInfo.uid === null) {
     return <Login />;
   }
-  if (loginInfo.isLoggedIn && loginInfo.userDetails && loginInfo.uid != null) {
+  if (
+    loginInfo.isLoggedIn &&
+    loginInfo.uid != null &&
+    loginInfo.userDetails === null
+  ) {
+    getuserDetails(loginInfo.uid);
+  }
+  if (
+    loginInfo.isLoggedIn &&
+    loginInfo.userDetails &&
+    loginInfo.uid != null &&
+    loginInfo.userDetails.username &&
+    loginInfo.userDetails.email
+  ) {
     //mainpage
     return <Chats />;
   }
-  if (loginInfo.isLoggedIn && loginInfo.uid != null && !loginInfo.userDetails) {
-    getuserDetails(loginInfo.uid);
-  }
+
   return <LoadingPage />;
 }
 

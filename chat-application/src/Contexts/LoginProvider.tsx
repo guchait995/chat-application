@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import LoginContext from "./LoginContext";
-import { getAuth, getDb } from "../Firebase/FirebaseDao";
+import {
+  getAuth,
+  getDb,
+  setOffline,
+  getConnectionStatus
+} from "../Firebase/FirebaseDao";
 import { userInfo } from "os";
 import { openSnackbar } from "../Components/CustomSnackbar";
 import {
@@ -24,7 +29,7 @@ export default function LoginProvider(props) {
     userDetails: null,
     uid: null
   });
-
+  var observe: () => void;
   const setLoginDetails = (isLoggedIn, uid, userDetails) => {
     setLoginInfo({
       ...loginInfo,
@@ -50,6 +55,34 @@ export default function LoginProvider(props) {
             timeout: SNACKBAR_TIMEOUT
           });
       });
+  };
+  const logOutUser = async uid => {
+    setOffline(uid);
+    setLoginDetails(false, uid, null);
+    var unsubscribe = getDb()
+      .collection("users")
+      .doc(uid)
+      .onSnapshot(
+        documentSnapshot => {
+          var doc = documentSnapshot.data();
+          if (doc) {
+            var state = doc.state;
+            console.log(state);
+            if (state === "offline") {
+              unsubscribe();
+              getAuth()
+                .signOut()
+                .then(res => {});
+            } else {
+              return false;
+            }
+          }
+          return false;
+        },
+        err => {
+          return false;
+        }
+      );
   };
   const signUpWithEmailPasswordUsername = (email, password, username) => {
     getAuth()
@@ -100,37 +133,59 @@ export default function LoginProvider(props) {
       });
   };
   const getuserDetails = uid => {
-    getDb()
-      .collection("users")
-      .doc(uid)
-      .onSnapshot(
-        docSnap => {
-          console.log("user details updated");
-          var data = docSnap.data();
-          if (data) {
-            var username = data.username;
-            var email = data.email;
-            var last_changed = data.last_changed;
-            var state = data.state;
-            var color = data.color;
-            var goOffline = data.goOffline;
-          }
-          setLoginInfo({
-            ...loginInfo,
-            userDetails: {
-              username: username,
-              email: email,
-              last_changed: last_changed,
-              state: state,
-              color: color,
-              goOffline: goOffline
+    getConnectionStatus(uid);
+    if (uid)
+      observe = getDb()
+        .collection("users")
+        .doc(uid)
+        .onSnapshot(
+          docSnap => {
+            if (docSnap.exists) {
+              var data = docSnap.data();
+              if (data) {
+                var username = data.username;
+                var email = data.email;
+                var last_changed = data.last_changed;
+                var state = data.state;
+                var color = data.color;
+                var goOffline = data.goOffline;
+
+                setLoginInfo({
+                  ...loginInfo,
+                  isLoggedIn: true,
+                  uid: uid,
+                  userDetails: {
+                    username: username,
+                    email: email,
+                    last_changed: last_changed,
+                    state: state,
+                    color: color,
+                    goOffline: goOffline
+                  }
+                });
+              } else {
+                setLoginInfo({
+                  ...loginInfo,
+                  isLoggedIn: false,
+                  uid: null,
+                  userDetails: null
+                });
+              }
+            } else {
+              setLoginInfo({
+                ...loginInfo,
+                isLoggedIn: false,
+                uid: null,
+                userDetails: null
+              });
+              console.log("document not found");
             }
-          });
-        },
-        err => {
-          console.error(err);
-        }
-      );
+          },
+          err => {
+            console.error(err);
+          }
+        );
+    // else observe();
   };
   return (
     <LoginContext.Provider
@@ -140,7 +195,8 @@ export default function LoginProvider(props) {
           loginWithEmailAndPwd,
           getuserDetails,
           signUpWithEmailPasswordUsername,
-          setLoginDetails
+          setLoginDetails,
+          logOutUser
         }
       }}
     >
@@ -148,48 +204,3 @@ export default function LoginProvider(props) {
     </LoginContext.Provider>
   );
 }
-
-//   const loginWithEmailPassword = async (email, password) => {
-//     axios
-//       .post(
-//         "https://us-central1-chat-application-4596f.cloudfunctions.net/loginWithEmailAndPwd",
-//         { email, password }
-//       )
-//       .then(res => {
-//         if (res) {
-//           var idToken = res.data.idToken;
-//           window.localStorage.setItem("idToken", idToken);
-//           var uid = res.data.localId;
-//           setLoginInfo({
-//             ...loginInfo,
-//             uid: uid
-//           });
-//         }
-//       })
-//       .catch(err => {
-//         setLoginInfo({
-//           ...loginInfo,
-//           user: null,
-//           isLoggedIn: false,
-//           uid: null
-//         });
-//         console.error(err);
-//       });
-//   };
-//   const verifyToken = async idToken => {
-//     const AuthStr = "Bearer ".concat(idToken);
-//     axios
-//       .post(
-//         "https://us-central1-chat-application-4596f.cloudfunctions.net/appExpress/getUser",
-//         { uid: loginInfo.uid },
-//         { headers: { Authorization: AuthStr } }
-//       )
-//       .then(res => {
-//         setLoginInfo({ ...loginInfo, user: res.data.user, isLoggedIn: true });
-//         // console.log(res);
-//       })
-//       .catch(err => {
-//         setLoginInfo({ ...loginInfo, user: null, isLoggedIn: false });
-//         console.error(err);
-//       });
-//   };

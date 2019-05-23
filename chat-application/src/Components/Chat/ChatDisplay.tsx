@@ -16,7 +16,6 @@ export default function ChatDisplay() {
   useEffect(() => {
     if (isMounted) {
       isMounted = false;
-      getConnectionStatus(loginInfo.uid, loginInfo.userDetails);
       var coll = getDb().collection("chats");
       var observer = coll.onSnapshot(
         collSnapshot => {
@@ -57,9 +56,7 @@ export default function ChatDisplay() {
                       />
                     </div>
                   );
-                  console.log(prevDate);
                 } else {
-                  //prevDate = currentDate;
                 }
               }
 
@@ -72,16 +69,3 @@ export default function ChatDisplay() {
     </div>
   );
 }
-
-// const AuthStr = "Bearer ".concat(loginInfo.idToken);
-// axios
-//   .get(
-//     "https://us-central1-chat-application-4596f.cloudfunctions.net/app/chats",
-//     { headers: { Authorization: AuthStr } }
-//   )
-//   .then(res => {
-//     setMessages(res.data);
-//   })
-//   .catch(err => {
-//     console.error(err);
-//   });

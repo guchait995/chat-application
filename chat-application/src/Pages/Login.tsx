@@ -28,7 +28,12 @@ export default function Login() {
         <div className="login-dialog">
           <img src={icon} className="app-icon" />
           <h1>Welcome !!!!</h1>
-          <form>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              loginWithEmailAndPwd(email, password);
+            }}
+          >
             <TextField
               label="Email"
               fullWidth
@@ -67,6 +72,7 @@ export default function Login() {
               variant="contained"
               fullWidth
               color="primary"
+              type="submit"
               onClick={() => {
                 loginWithEmailAndPwd(email, password);
                 // loginWithEmailPassword(email, password);

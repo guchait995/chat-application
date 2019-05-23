@@ -11,6 +11,7 @@ import {
 import LoginContext from "../Contexts/LoginContext";
 import { useContext } from "react";
 import { format } from "util";
+import { async } from "q";
 const firebaseConfig = {
   apiKey: "AIzaSyCczyYTfWTySspf_s6Dne_ncxW5mr70s_w",
   authDomain: "chat-application-4596f.firebaseapp.com",
@@ -41,7 +42,6 @@ var isOnlineForDatabase = {
 
 //if user name already registered
 export async function isUserExist(username) {
-  console.log(username);
   var doc = await getDb()
     .collection("usernames")
     .doc(username)
@@ -53,46 +53,52 @@ export async function isUserExist(username) {
 }
 
 //returns get connection status by uid
-export function getConnectionStatus(uid, userDetails) {
-  var goOffline = userDetails.goOffline;
+export function getConnectionStatus(uid) {
+  // var goOffline = userDetails.goOffline;
   getDb()
     .collection("users")
     .doc(uid)
     .get()
     .then(res => {
-      var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
-      firebase
-        .database()
-        .ref(".info/connected")
-        .on("value", function(snapshot) {
-          // If we're not currently connected, don't do anything.
-          if (snapshot.val() == false) {
-            return 0;
-          }
-          //if we are connected
-          if (!userDetails.goOffline) {
-            // if gooOffline is true user has went offline and we
-            // shouldnt show or turn him online
-            userStatusDatabaseRef
-              .onDisconnect()
-              .set(isOfflineForDatabase)
-              .then(function() {
-                userStatusDatabaseRef.set(isOnlineForDatabase).then(() => {
-                  return 1;
-                });
-              });
-          }
+      getDb()
+        .collection("users")
+        .doc(uid)
+        .get()
+        .then(docSnapshot => {
+          var data = docSnapshot.data();
+          firebase
+            .database()
+            .ref(".info/connected")
+            .on("value", function(snapshot) {
+              // If we're not currently connected, don't do anything.
+
+              if (snapshot.val() == false) {
+                setOffline(uid);
+                return 0;
+              }
+              //if we are connected
+              if (data && !data.goOffline) {
+                // if gooOffline is true user has went offline and we
+                // shouldnt show or turn him online
+                attachObserverOnConnected(uid);
+              }
+            });
         });
     });
 }
 
-//setsonline offline state change
-export const onOnlineOfflineStateChange = (uid, state) => {
-  var timeStamp = new Date().getTime();
-  getDb()
-    .collection("users")
-    .doc(uid)
-    .set({ state: state, last_changed: timeStamp }, { merge: true });
+export const attachObserverOnConnected = uid => {
+  var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
+  userStatusDatabaseRef
+    .onDisconnect()
+    .set(isOfflineForDatabase)
+    .then(() => {
+      //is offline
+      // setFireStoreOfflineOnline(uid, isOfflineForDatabase);
+      userStatusDatabaseRef.set(isOnlineForDatabase).then(() => {
+        // setFireStoreOfflineOnline(uid, isOnlineForDatabase);
+      });
+    });
 };
 //sets offline
 export const setOffline = uid => {
@@ -103,6 +109,20 @@ export const setOffline = uid => {
 export const setOnline = uid => {
   var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
   userStatusDatabaseRef.set(isOnlineForDatabase);
+};
+
+//sets online status in firestore
+export const setFireStoreOfflineOnline = (uid, onlineState) => {
+  if (uid) {
+    getDb()
+      .collection("users")
+      .doc(uid)
+      .set(onlineState, { merge: true })
+      .then(res => {})
+      .catch(err => {
+        console.error(err);
+      });
+  }
 };
 //toggle show Offline and Online
 export const toggleOffline = (isSwitchedOn, uid) => {
@@ -116,13 +136,7 @@ export const toggleOffline = (isSwitchedOn, uid) => {
           setOffline(uid);
         } else {
           // setOnline(uid);
-          var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
-          userStatusDatabaseRef
-            .onDisconnect()
-            .set(isOfflineForDatabase)
-            .then(function() {
-              userStatusDatabaseRef.set(isOnlineForDatabase).then(() => {});
-            });
+          attachObserverOnConnected(uid);
         }
         openSnackbar({
           message: format(

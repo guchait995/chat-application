@@ -17,8 +17,6 @@ export const getEmoji = async (text, setEmotion) => {
 
       if (data && data.message === "OK") {
         var sentiment = data.response;
-        // console.log(sentiment);
-        // console.log(sentiment.polarity);
         if (
           sentiment.polarity === "positive" &&
           sentiment.polarity_confidence > 0.7

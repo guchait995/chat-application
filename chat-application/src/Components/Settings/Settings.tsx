@@ -47,11 +47,7 @@ export default function Settings(props) {
             right={
               <Switch
                 checked={isSwitchOn === null ? false : isSwitchOn}
-                classes={{
-                  switchBase: classes.colorSwitchBase,
-                  checked: classes.colorChecked,
-                  bar: classes.colorBar
-                }}
+                color="primary"
                 value="offlineSwitch"
                 onChange={e => {
                   handleSwitch(e.currentTarget.checked);

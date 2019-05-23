@@ -8,8 +8,6 @@ import CustomSnackbar from "./Components/CustomSnackbar";
 
 ReactDOM.render(
   <React.Fragment>
-    <CustomBootDialog />
-    <CustomSnackbar />
     <App />
   </React.Fragment>,
   document.getElementById("root")
